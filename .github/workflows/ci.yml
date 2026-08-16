@@ -14,7 +14,7 @@ jobs:
       # core.config veri kökünü içe aktarma anında ister ve tanımlı değilse
       # bilerek hata fırlatır (sessiz varsayılan yok). CI'da .env bulunmadığı
       # için burada geçici bir kök verilir; testler zaten tmp_path kullanır.
-      OTOMASYON_DATA_ROOT: ${{ runner.temp }}/otomasyon-data
+      OTOMASYON_DATA_ROOT: ${{ github.workspace }}/.ci-data
     steps:
       - uses: actions/checkout@v4
 
