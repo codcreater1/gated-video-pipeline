@@ -219,6 +219,29 @@ def _check_disk() -> list[Result]:
     return out
 
 
+def _check_youtube_auth() -> list[Result]:
+    """Aktif kanalların YouTube yetkilendirmesi.
+
+    Uyarı seviyesinde: yetkilendirme olmadan üretim sonuna kadar çalışır ve
+    videolar onay kuyruğunda birikir. Yalnızca yükleme adımı durur.
+    """
+    from core import config, publish
+
+    out: list[Result] = []
+    for ch, profile in config.active_channels().items():
+        path = publish.token_path(ch)
+        ok = path.exists()
+        out.append(
+            Result(
+                f"YouTube yetkisi ({profile.display_name})",
+                ok,
+                str(path) if ok else f"yok — `otomasyon authorize {ch.value}` çalıştır",
+                fatal=False,
+            )
+        )
+    return out
+
+
 def _check_db() -> Result:
     try:
         from core import db
@@ -270,6 +293,7 @@ def run() -> int:
         )
     else:
         checks.extend(_check_config())
+        checks.extend(_check_youtube_auth())
         checks.extend(_check_disk())
         checks.append(_check_db())
 

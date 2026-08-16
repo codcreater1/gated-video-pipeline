@@ -106,15 +106,33 @@ This audits configuration, directories, the external drive, ffmpeg and the model
 
 ## Step 5 — YouTube OAuth
 
-> ⚠️ **Not yet implemented.** `core/publish` does not exist yet — the pipeline currently ends by placing an approved video in the upload queue. The steps below describe the intended setup and are recorded here so the credentials work is not rediscovered later.
-
 1. Create a project in the [Google Cloud Console](https://console.cloud.google.com/)
 2. Enable the **YouTube Data API v3**
 3. Create an OAuth 2.0 Client ID → type: **Desktop app** → download the JSON
 4. Point `YT_CLIENT_SECRET_FILE` in `.env` at that JSON
-5. Authorize each channel once
+5. Authorize each active channel once — this opens a browser:
 
-> Quota note: `videos.insert` dropped from ~1600 to ~100 units on 4 December 2025, and since 1 June 2026 it has had its own daily bucket (~100 calls/day). It no longer competes with the read/search budget and is not a bottleneck at this volume.
+```bash
+otomasyon authorize bedtime
+```
+
+The token is written to `$OTOMASYON_DATA_ROOT/credentials/`, outside the repository, so committing it is not physically possible. `YT_CHANNEL_A_TOKEN_FILE` in `.env` overrides the location if you want it elsewhere.
+
+Only the `youtube.upload` scope is requested. Analytics needs a separate scope and a separate consent screen; asking for permissions we do not use yet is worse than asking twice.
+
+> ⚠️ The most common mistake here is signing in with the wrong Google account. The browser page shows which channel is being authorized — check it before approving.
+
+Once authorized, `otomasyon doctor` reports the token for each active channel, and publishing works:
+
+```bash
+otomasyon uploads
+```
+
+```bash
+otomasyon publish 1
+```
+
+> Quota note: `videos.insert` dropped from ~1600 to ~100 units on 4 December 2025, and since 1 June 2026 it has had its own daily bucket (~100 calls/day). It no longer competes with the read/search budget and is not a bottleneck at this volume — the pipeline's own daily ceiling is 2 long-form videos.
 
 ## Step 6 — Kokoro TTS model
 

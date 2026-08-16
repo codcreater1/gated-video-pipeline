@@ -57,12 +57,15 @@ flowchart TD
     G -->|too similar| STOP3([halt — before render])
     G --> H[render.py → Remotion<br/>1920×1080, 30fps]
     H --> I{{human approval<br/>REQUIRED}}
-    I -->|approved| J[upload queue]
     I -->|rejected| K[requeue with reason]
+    I -->|approved| L{daily cap + MFK<br/>re-checked at publish}
+    L -->|cap reached| STOP4([hold — job stays approved])
+    L --> M[publish.py → YouTube<br/>resumable upload]
 
-    style G fill:#8b2f2f,color:#fff
-    style D fill:#8b2f2f,color:#fff
     style B fill:#8b2f2f,color:#fff
+    style D fill:#8b2f2f,color:#fff
+    style G fill:#8b2f2f,color:#fff
+    style L fill:#8b2f2f,color:#fff
     style I fill:#1f5c8b,color:#fff
 ```
 
@@ -70,6 +73,7 @@ Two ordering decisions carry weight:
 
 - **Narration runs before the variation gate.** The gate's voice axis needs to know which voice was used, and voice selection happens during narration. More importantly, scene durations are only real once audio exists — the script's estimates are guesses.
 - **The variation gate runs before rendering.** See above: a rejection after rendering is 23 wasted minutes.
+- **The cadence cap is re-checked at publish, not just at creation.** Approved jobs accumulate in the queue. Checking the daily ceiling only when a job is *created* means five approved videos can still go out on the same day — and "how many were published today" is what the policy actually measures.
 
 That second point was not theoretical. In an end-to-end test the script estimated 66 seconds of narration for a scene; the actual audio came out at 32.5 seconds — a **2× error**. Without [`core/narration.py`](core/narration.py) rewriting scene durations from measured audio length, the video would have carried 33 seconds of silence. Over a 10-minute episode that compounds into minutes of drift.
 
@@ -150,6 +154,9 @@ otomasyon doctor && otomasyon init
 | `otomasyon review <id>` | Show the review card and value-test checklist |
 | `otomasyon approve <id>` | Approve and move to the upload queue |
 | `otomasyon reject <id> "reason"` | Reject — the job is requeued, never deleted |
+| `otomasyon authorize <channel>` | YouTube OAuth, once per channel |
+| `otomasyon uploads` | Approved videos not yet uploaded |
+| `otomasyon publish <id>` | Upload to YouTube — the only irreversible command |
 | `otomasyon setup-node` | Fetch portable Node 22 for n8n (leaves system PATH alone) |
 
 ![otomasyon status](docs/images/cli-status.svg)
@@ -171,26 +178,43 @@ otomasyon doctor && otomasyon init
 
 Full methodology in [docs/benchmarks.md](docs/benchmarks.md).
 
+## Publishing
+
+[`core/publish.py`](core/publish.py) is the pipeline's only irreversible operation, and it is written to behave like it. Everything before it can be undone: a rejected job returns to the queue, a failed render is retried. A video that reaches YouTube becomes part of the channel's policy surface permanently.
+
+So it produces nothing. It moves an already-approved file and re-verifies three things on the way:
+
+- **Approval.** `approval.assert_publishable()` is called — a contract [`core/approval.py`](core/approval.py) states explicitly.
+- **The daily cap**, for the reason above.
+- **The Made for Kids flag.** `config.validate()` holds this at the configuration level, but the value that reaches the API is built here. The upload body sets `selfDeclaredMadeForKids` — the writable field; `madeForKids` is read-only and sending it would leave the flag silently unset.
+
+The variation fingerprint is committed *after* a successful upload, never at generation time, so unpublished attempts never pollute the comparison window.
+
+Uploads are resumable in 4 MB chunks with exponential backoff on 5xx — a 40 MB episode that drops at 90% resumes instead of restarting. If the upload fails, the job stays `approved` and can be retried.
+
+`snippet.defaultAudioLanguage` is set explicitly: YouTube's auto-dubbing does nothing without it, and leaving it empty would silently cancel the entire 27-language plan.
+
 ## Status
 
-Implemented and tested: ideation, scripting, storyboarding, narration, TTS, rendering, all four gates, the review queue, the database, and the CLI — **106 tests**, run on every push by CI.
+Implemented and tested end to end: ideation, scripting, storyboarding, narration, TTS, rendering, all four gates, the review queue, YouTube publishing, the database, and the CLI — **125 tests**, run on every push by CI. The upload path is fully covered without touching the Google API: the uploader is injectable, so the tests assert what *would* be sent.
 
-Not yet implemented: the YouTube upload step (`core/publish`). The pipeline currently ends by placing an approved video in the upload queue. This is the next piece of work, and it is deliberately last — the gates had to be trustworthy before anything could reach the API.
+Not yet implemented: post-publish analytics feedback into ideation. The `analytics` table exists and the schema is in place; nothing writes to it yet.
 
 ## Project layout
 
 ```
 .
-├─ core/               # Python production logic (14 modules)
+├─ core/               # Python production logic (15 modules)
 │  ├─ pipeline.py      #   orchestrator — applies gates in order
 │  ├─ variation_guard.py, budget.py, approval.py   # the gates
 │  ├─ ideation.py, script.py, storyboard.py        # content generation
 │  ├─ narration.py, voice.py                       # Kokoro TTS
 │  ├─ render.py        #   Remotion driver
+│  ├─ publish.py       #   YouTube upload — the irreversible step
 │  └─ config.py, db.py, doctor.py, cli.py
 ├─ remotion/           # video templates (React + TypeScript)
 │  └─ src/characters/  #   Fen and companions, drawn in SVG
-├─ tests/              # 106 tests, no external-drive dependency
+├─ tests/              # 125 tests, no external-drive dependency
 ├─ scripts/n8n.ps1     # n8n launcher
 └─ docs/
 ```

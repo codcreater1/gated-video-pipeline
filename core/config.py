@@ -38,6 +38,9 @@ MODELS_DIR = DATA_ROOT / "models"
 OUTPUT_DIR = DATA_ROOT / "output"
 CACHE_DIR = DATA_ROOT / "cache"
 DB_DIR = DATA_ROOT / "db"
+# YouTube OAuth token'ları. Repo içinde DEĞİL — veri kökünde yaşar ki
+# yanlışlıkla commit'lenmesi fiziksel olarak mümkün olmasın.
+CREDENTIALS_DIR = DATA_ROOT / "credentials"
 
 # Onay kuyruğu: render bitmiş ama henüz onaylanmamış videolar
 PENDING_DIR = OUTPUT_DIR / "pending"
@@ -51,7 +54,7 @@ PUBLISHED_DIR = OUTPUT_DIR / "published"
 DB_PATH = DB_DIR / "pipeline.sqlite3"
 
 ALL_DIRS = [
-    ASSETS_DIR, MODELS_DIR, OUTPUT_DIR, CACHE_DIR, DB_DIR,
+    ASSETS_DIR, MODELS_DIR, OUTPUT_DIR, CACHE_DIR, DB_DIR, CREDENTIALS_DIR,
     PENDING_DIR, APPROVED_DIR, REJECTED_DIR, PUBLISHED_DIR,
 ]
 

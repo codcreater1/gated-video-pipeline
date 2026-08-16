@@ -7,6 +7,9 @@
     otomasyon review <id>       # inceleme kartını göster
     otomasyon approve <id>      # onayla
     otomasyon reject <id> "..." # reddet (iş silinmez, kuyruğa döner)
+    otomasyon authorize <kanal> # YouTube OAuth (kanal başına bir kez)
+    otomasyon uploads           # yükleme bekleyen onaylı işler
+    otomasyon publish <id>      # YouTube'a yükle
 """
 
 from __future__ import annotations
@@ -211,6 +214,80 @@ def reject(job_id: int, reason: str) -> None:
     """Videoyu reddeder. İş silinmez, yeniden üretim kuyruğuna döner."""
     approval.reject(job_id, reason)
     console.print(f"[yellow]İş #{job_id} reddedildi:[/yellow] {reason}")
+
+
+@app.command()
+def authorize(channel: str) -> None:
+    """Kanalı YouTube'a yetkilendirir. Kanal başına bir kez, tarayıcı açılır."""
+    from core import publish
+
+    try:
+        ch = config.Channel(channel)
+    except ValueError as exc:
+        valid = ", ".join(c.value for c in config.Channel)
+        console.print(f"[red]Bilinmeyen kanal: {channel}[/red] (geçerli: {valid})")
+        raise typer.Exit(1) from exc
+
+    console.print(
+        f"Tarayıcı açılıyor — [bold]{ch.value}[/bold] kanalının "
+        f"Google hesabıyla giriş yap."
+    )
+    try:
+        path = publish.authorize(ch)
+    except publish.NotAuthorized as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+
+    console.print(f"[green]Yetkilendirildi.[/green] Token: {path}")
+
+
+@app.command()
+def uploads() -> None:
+    """Onaylanmış ama henüz YouTube'a yüklenmemiş işler."""
+    from core import publish
+
+    jobs = publish.pending_uploads()
+    if not jobs:
+        console.print("Yükleme bekleyen iş yok.")
+        return
+
+    table = Table(title=f"Yükleme bekleyen ({len(jobs)})")
+    table.add_column("ID", justify="right")
+    table.add_column("Kanal")
+    table.add_column("Başlık")
+    for j in jobs:
+        table.add_row(str(j["id"]), j["channel"], j["title"] or "?")
+    console.print(table)
+    console.print("\n[dim]Yüklemek için: otomasyon publish <id>[/dim]")
+
+
+@app.command()
+def publish(
+    job_id: int,
+    privacy: str = typer.Option("public", help="public | unlisted | private"),
+) -> None:
+    """Onaylanmış videoyu YouTube'a yükler.
+
+    Geri alınamaz tek işlem bu. Onay kapısı, günlük tavan ve Made for Kids
+    bayrağı yükleme öncesi bir kez daha denetlenir.
+    """
+    from core import publish as pub
+
+    try:
+        result = pub.publish(job_id, privacy_status=privacy)
+    except (pub.PublishError, approval.ApprovalRequired, ValueError) as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+
+    console.print(
+        Panel(
+            f"[bold]{result.title}[/bold]\n\n"
+            f"{result.url}\n"
+            f"Kanal: {result.channel}  |  Gizlilik: {result.privacy_status}  |  "
+            f"Made for Kids: {'EVET' if result.made_for_kids else 'hayır'}",
+            title=f"Yayınlandı — İş #{job_id}",
+        )
+    )
 
 
 if __name__ == "__main__":
