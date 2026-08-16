@@ -1,0 +1,59 @@
+[project]
+name = "otomasyon"
+version = "0.1.0"
+description = "Çocuk videoları için otomatik üretim hattı"
+requires-python = ">=3.12"
+
+# Çekirdek mantık (kapılar, kadans, DB, CLI) yalnızca bunlara bağlıdır.
+# Ağır çalışma-zamanı bağımlılıkları [runtime] extra'sındadır: kapıları test etmek
+# için 200 MB'lık bir ONNX runtime indirmek gerekmesin.
+dependencies = [
+    "python-dotenv>=1.0",
+    "anthropic>=0.40",
+    "httpx>=0.27",
+    "pydantic>=2.9",
+    "soundfile>=0.12",
+    "numpy>=1.26",
+    # Varyasyon kapısı — yerel embedding, API çağrısı yok
+    "scikit-learn>=1.5",
+    # CLI
+    "rich>=13.7",
+    "typer>=0.12",
+]
+
+[project.optional-dependencies]
+# Gerçek üretim için gereken ağır parçalar. `core.voice` Kokoro'yu zaten tembel
+# import eder, bu yüzden bunlar olmadan hat kurulur ve test edilir; yalnızca
+# ses sentezi ve yükleme adımları çalışmaz.
+runtime = [
+    # TTS — ONNX runtime, PyTorch değil (disk ve VRAM kısıtı)
+    "kokoro-onnx>=0.4",
+    # YouTube
+    "google-api-python-client>=2.140",
+    "google-auth-oauthlib>=1.2",
+    "google-auth-httplib2>=0.2",
+]
+dev = [
+    "pytest>=8.3",
+    "ruff>=0.6",
+]
+
+[project.scripts]
+otomasyon = "core.cli:app"
+
+[build-system]
+requires = ["hatchling"]
+build-backend = "hatchling.build"
+
+[tool.hatch.build.targets.wheel]
+packages = ["core"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py312"
+
+[tool.ruff.lint]
+select = ["E", "F", "I", "UP", "B"]
+
+[tool.pytest.ini_options]
+testpaths = ["tests"]

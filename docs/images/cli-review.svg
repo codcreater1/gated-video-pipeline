@@ -1,0 +1,216 @@
+<svg class="rich-terminal" viewBox="0 0 1238 1001.5999999999999" xmlns="http://www.w3.org/2000/svg">
+    <!-- Generated with Rich https://www.textualize.io -->
+    <style>
+
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Regular"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Regular.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Regular.woff") format("woff");
+        font-style: normal;
+        font-weight: 400;
+    }
+    @font-face {
+        font-family: "Fira Code";
+        src: local("FiraCode-Bold"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff2/FiraCode-Bold.woff2") format("woff2"),
+                url("https://cdnjs.cloudflare.com/ajax/libs/firacode/6.2.0/woff/FiraCode-Bold.woff") format("woff");
+        font-style: bold;
+        font-weight: 700;
+    }
+
+    .terminal-3635844666-matrix {
+        font-family: Fira Code, monospace;
+        font-size: 20px;
+        line-height: 24.4px;
+        font-variant-east-asian: full-width;
+    }
+
+    .terminal-3635844666-title {
+        font-size: 18px;
+        font-weight: bold;
+        font-family: arial;
+    }
+
+    .terminal-3635844666-r1 { fill: #c5c8c6 }
+.terminal-3635844666-r2 { fill: #c5c8c6;font-weight: bold }
+.terminal-3635844666-r3 { fill: #98a84b }
+.terminal-3635844666-r4 { fill: #68a0b3;font-weight: bold }
+.terminal-3635844666-r5 { fill: #868887 }
+.terminal-3635844666-r6 { fill: #4e707b;font-weight: bold }
+.terminal-3635844666-r7 { fill: #6b753d }
+    </style>
+
+    <defs>
+    <clipPath id="terminal-3635844666-clip-terminal">
+      <rect x="0" y="0" width="1219.0" height="950.5999999999999" />
+    </clipPath>
+    <clipPath id="terminal-3635844666-line-0">
+    <rect x="0" y="1.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-1">
+    <rect x="0" y="25.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-2">
+    <rect x="0" y="50.3" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-3">
+    <rect x="0" y="74.7" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-4">
+    <rect x="0" y="99.1" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-5">
+    <rect x="0" y="123.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-6">
+    <rect x="0" y="147.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-7">
+    <rect x="0" y="172.3" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-8">
+    <rect x="0" y="196.7" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-9">
+    <rect x="0" y="221.1" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-10">
+    <rect x="0" y="245.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-11">
+    <rect x="0" y="269.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-12">
+    <rect x="0" y="294.3" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-13">
+    <rect x="0" y="318.7" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-14">
+    <rect x="0" y="343.1" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-15">
+    <rect x="0" y="367.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-16">
+    <rect x="0" y="391.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-17">
+    <rect x="0" y="416.3" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-18">
+    <rect x="0" y="440.7" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-19">
+    <rect x="0" y="465.1" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-20">
+    <rect x="0" y="489.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-21">
+    <rect x="0" y="513.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-22">
+    <rect x="0" y="538.3" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-23">
+    <rect x="0" y="562.7" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-24">
+    <rect x="0" y="587.1" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-25">
+    <rect x="0" y="611.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-26">
+    <rect x="0" y="635.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-27">
+    <rect x="0" y="660.3" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-28">
+    <rect x="0" y="684.7" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-29">
+    <rect x="0" y="709.1" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-30">
+    <rect x="0" y="733.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-31">
+    <rect x="0" y="757.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-32">
+    <rect x="0" y="782.3" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-33">
+    <rect x="0" y="806.7" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-34">
+    <rect x="0" y="831.1" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-35">
+    <rect x="0" y="855.5" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-36">
+    <rect x="0" y="879.9" width="1220" height="24.65"/>
+            </clipPath>
+<clipPath id="terminal-3635844666-line-37">
+    <rect x="0" y="904.3" width="1220" height="24.65"/>
+            </clipPath>
+    </defs>
+
+    <rect fill="#292929" stroke="rgba(255,255,255,0.35)" stroke-width="1" x="1" y="1" width="1236" height="999.6" rx="8"/><text class="terminal-3635844666-title" fill="#c5c8c6" text-anchor="middle" x="618" y="27">otomasyon&#160;review&#160;1</text>
+            <g transform="translate(26,22)">
+            <circle cx="0" cy="0" r="7" fill="#ff5f57"/>
+            <circle cx="22" cy="0" r="7" fill="#febc2e"/>
+            <circle cx="44" cy="0" r="7" fill="#28c840"/>
+            </g>
+        
+    <g transform="translate(9, 41)" clip-path="url(#terminal-3635844666-clip-terminal)">
+    
+    <g class="terminal-3635844666-matrix">
+    <text class="terminal-3635844666-r1" x="0" y="20" textLength="24.4" clip-path="url(#terminal-3635844666-line-0)">┌─</text><text class="terminal-3635844666-r1" x="24.4" y="20" textLength="1171.2" clip-path="url(#terminal-3635844666-line-0)">────────────────────────────────────────────&#160;İş&#160;#1&#160;─────────────────────────────────────────────</text><text class="terminal-3635844666-r1" x="1195.6" y="20" textLength="24.4" clip-path="url(#terminal-3635844666-line-0)">─┐</text><text class="terminal-3635844666-r1" x="1220" y="20" textLength="12.2" clip-path="url(#terminal-3635844666-line-0)">
+</text><text class="terminal-3635844666-r1" x="0" y="44.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-1)">│</text><text class="terminal-3635844666-r2" x="24.4" y="44.4" textLength="610" clip-path="url(#terminal-3635844666-line-1)">Uzun&#160;Bacaklı&#160;Balıkçıl&#160;and&#160;the&#160;gökyüzünde&#160;bir&#160;değiş</text><text class="terminal-3635844666-r1" x="1207.8" y="44.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-1)">│</text><text class="terminal-3635844666-r1" x="1220" y="44.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-1)">
+</text><text class="terminal-3635844666-r1" x="0" y="68.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-2)">│</text><text class="terminal-3635844666-r1" x="1207.8" y="68.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-2)">│</text><text class="terminal-3635844666-r1" x="1220" y="68.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-2)">
+</text><text class="terminal-3635844666-r1" x="0" y="93.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-3)">│</text><text class="terminal-3635844666-r1" x="24.4" y="93.2" textLength="890.6" clip-path="url(#terminal-3635844666-line-3)">Kanal:&#160;bedtime&#160;&#160;|&#160;&#160;Format:&#160;episode&#160;&#160;|&#160;&#160;Süre:&#160;11dk&#160;16sn&#160;&#160;|&#160;&#160;Maliyet:&#160;$0.00</text><text class="terminal-3635844666-r1" x="1207.8" y="93.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-3)">│</text><text class="terminal-3635844666-r1" x="1220" y="93.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-3)">
+</text><text class="terminal-3635844666-r1" x="0" y="117.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-4)">│</text><text class="terminal-3635844666-r1" x="24.4" y="117.6" textLength="390.4" clip-path="url(#terminal-3635844666-line-4)">Made&#160;for&#160;Kids:&#160;EVET&#160;&#160;|&#160;&#160;Sahne:&#160;8</text><text class="terminal-3635844666-r1" x="1207.8" y="117.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-4)">│</text><text class="terminal-3635844666-r1" x="1220" y="117.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-4)">
+</text><text class="terminal-3635844666-r1" x="0" y="142" textLength="12.2" clip-path="url(#terminal-3635844666-line-5)">│</text><text class="terminal-3635844666-r1" x="24.4" y="142" textLength="1171.2" clip-path="url(#terminal-3635844666-line-5)">Konu:&#160;Fen&#160;ve&#160;uzun&#160;bacaklı&#160;balıkçıl&#160;—&#160;gökyüzünde&#160;bir&#160;değişikliği&#160;fark&#160;etmek&#160;(yosunlu&#160;dere&#160;yatağı,</text><text class="terminal-3635844666-r1" x="1207.8" y="142" textLength="12.2" clip-path="url(#terminal-3635844666-line-5)">│</text><text class="terminal-3635844666-r1" x="1220" y="142" textLength="12.2" clip-path="url(#terminal-3635844666-line-5)">
+</text><text class="terminal-3635844666-r1" x="0" y="166.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-6)">│</text><text class="terminal-3635844666-r1" x="24.4" y="166.4" textLength="170.8" clip-path="url(#terminal-3635844666-line-6)">yardım&#160;yapısı)</text><text class="terminal-3635844666-r1" x="1207.8" y="166.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-6)">│</text><text class="terminal-3635844666-r1" x="1220" y="166.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-6)">
+</text><text class="terminal-3635844666-r1" x="0" y="190.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-7)">│</text><text class="terminal-3635844666-r1" x="1207.8" y="190.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-7)">│</text><text class="terminal-3635844666-r1" x="1220" y="190.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-7)">
+</text><text class="terminal-3635844666-r1" x="0" y="215.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-8)">│</text><text class="terminal-3635844666-r1" x="24.4" y="215.2" textLength="500.2" clip-path="url(#terminal-3635844666-line-8)">Dosya:&#160;D:\otomasyon-data\output\job_1.mp4</text><text class="terminal-3635844666-r1" x="1207.8" y="215.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-8)">│</text><text class="terminal-3635844666-r1" x="1220" y="215.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-8)">
+</text><text class="terminal-3635844666-r1" x="0" y="239.6" textLength="1220" clip-path="url(#terminal-3635844666-line-9)">└──────────────────────────────────────────────────────────────────────────────────────────────────┘</text><text class="terminal-3635844666-r1" x="1220" y="239.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-9)">
+</text><text class="terminal-3635844666-r1" x="0" y="264" textLength="24.4" clip-path="url(#terminal-3635844666-line-10)">┌─</text><text class="terminal-3635844666-r1" x="24.4" y="264" textLength="1171.2" clip-path="url(#terminal-3635844666-line-10)">─────────────────────────────────────&#160;Senaryo&#160;(başlangıç)&#160;──────────────────────────────────────</text><text class="terminal-3635844666-r1" x="1195.6" y="264" textLength="24.4" clip-path="url(#terminal-3635844666-line-10)">─┐</text><text class="terminal-3635844666-r1" x="1220" y="264" textLength="12.2" clip-path="url(#terminal-3635844666-line-10)">
+</text><text class="terminal-3635844666-r1" x="0" y="288.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-11)">│</text><text class="terminal-3635844666-r1" x="24.4" y="288.4" textLength="1110.2" clip-path="url(#terminal-3635844666-line-11)">A&#160;story&#160;about&#160;uzun&#160;bacaklı&#160;balıkçıl&#160;in&#160;the&#160;yosunlu&#160;dere&#160;yatağı.&#160;A&#160;story&#160;about&#160;uzun&#160;bacaklı&#160;</text><text class="terminal-3635844666-r1" x="1207.8" y="288.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-11)">│</text><text class="terminal-3635844666-r1" x="1220" y="288.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-11)">
+</text><text class="terminal-3635844666-r1" x="0" y="312.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-12)">│</text><text class="terminal-3635844666-r1" x="24.4" y="312.8" textLength="1134.6" clip-path="url(#terminal-3635844666-line-12)">balıkçıl&#160;in&#160;the&#160;yosunlu&#160;dere&#160;yatağı.&#160;A&#160;story&#160;about&#160;uzun&#160;bacaklı&#160;balıkçıl&#160;in&#160;the&#160;yosunlu&#160;dere&#160;</text><text class="terminal-3635844666-r1" x="1207.8" y="312.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-12)">│</text><text class="terminal-3635844666-r1" x="1220" y="312.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-12)">
+</text><text class="terminal-3635844666-r1" x="0" y="337.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-13)">│</text><text class="terminal-3635844666-r1" x="24.4" y="337.2" textLength="1110.2" clip-path="url(#terminal-3635844666-line-13)">yatağı.&#160;A&#160;story&#160;about&#160;uzun&#160;bacaklı&#160;balıkçıl&#160;in&#160;the&#160;yosunlu&#160;dere&#160;yatağı.&#160;A&#160;story&#160;about&#160;uzun&#160;</text><text class="terminal-3635844666-r1" x="1207.8" y="337.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-13)">│</text><text class="terminal-3635844666-r1" x="1220" y="337.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-13)">
+</text><text class="terminal-3635844666-r1" x="0" y="361.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-14)">│</text><text class="terminal-3635844666-r1" x="24.4" y="361.6" textLength="549" clip-path="url(#terminal-3635844666-line-14)">bacaklı&#160;balıkçıl&#160;in&#160;the&#160;yosunlu&#160;dere&#160;yatağı.&#160;</text><text class="terminal-3635844666-r1" x="1207.8" y="361.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-14)">│</text><text class="terminal-3635844666-r1" x="1220" y="361.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-14)">
+</text><text class="terminal-3635844666-r1" x="0" y="386" textLength="12.2" clip-path="url(#terminal-3635844666-line-15)">│</text><text class="terminal-3635844666-r1" x="1207.8" y="386" textLength="12.2" clip-path="url(#terminal-3635844666-line-15)">│</text><text class="terminal-3635844666-r1" x="1220" y="386" textLength="12.2" clip-path="url(#terminal-3635844666-line-15)">
+</text><text class="terminal-3635844666-r1" x="0" y="410.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-16)">│</text><text class="terminal-3635844666-r1" x="24.4" y="410.4" textLength="1110.2" clip-path="url(#terminal-3635844666-line-16)">A&#160;story&#160;about&#160;uzun&#160;bacaklı&#160;balıkçıl&#160;in&#160;the&#160;yosunlu&#160;dere&#160;yatağı.&#160;A&#160;story&#160;about&#160;uzun&#160;bacaklı&#160;</text><text class="terminal-3635844666-r1" x="1207.8" y="410.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-16)">│</text><text class="terminal-3635844666-r1" x="1220" y="410.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-16)">
+</text><text class="terminal-3635844666-r1" x="0" y="434.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-17)">│</text><text class="terminal-3635844666-r1" x="24.4" y="434.8" textLength="1134.6" clip-path="url(#terminal-3635844666-line-17)">balıkçıl&#160;in&#160;the&#160;yosunlu&#160;dere&#160;yatağı.&#160;A&#160;story&#160;about&#160;uzun&#160;bacaklı&#160;balıkçıl&#160;in&#160;the&#160;yosunlu&#160;dere&#160;</text><text class="terminal-3635844666-r1" x="1207.8" y="434.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-17)">│</text><text class="terminal-3635844666-r1" x="1220" y="434.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-17)">
+</text><text class="terminal-3635844666-r1" x="0" y="459.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-18)">│</text><text class="terminal-3635844666-r1" x="24.4" y="459.2" textLength="1159" clip-path="url(#terminal-3635844666-line-18)">yatağı.&#160;A&#160;story&#160;about&#160;uzun&#160;bacaklı&#160;balıkçıl&#160;in&#160;the&#160;yosunlu&#160;dere&#160;yatağı.&#160;A&#160;story&#160;about&#160;uzun&#160;bac…</text><text class="terminal-3635844666-r1" x="1207.8" y="459.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-18)">│</text><text class="terminal-3635844666-r1" x="1220" y="459.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-18)">
+</text><text class="terminal-3635844666-r1" x="0" y="483.6" textLength="1220" clip-path="url(#terminal-3635844666-line-19)">└──────────────────────────────────────────────────────────────────────────────────────────────────┘</text><text class="terminal-3635844666-r1" x="1220" y="483.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-19)">
+</text><text class="terminal-3635844666-r1" x="0" y="508" textLength="24.4" clip-path="url(#terminal-3635844666-line-20)">┌─</text><text class="terminal-3635844666-r1" x="24.4" y="508" textLength="1171.2" clip-path="url(#terminal-3635844666-line-20)">───────────────────────────────────&#160;Varyasyon&#160;kapısı&#160;notları&#160;───────────────────────────────────</text><text class="terminal-3635844666-r1" x="1195.6" y="508" textLength="24.4" clip-path="url(#terminal-3635844666-line-20)">─┐</text><text class="terminal-3635844666-r1" x="1220" y="508" textLength="12.2" clip-path="url(#terminal-3635844666-line-20)">
+</text><text class="terminal-3635844666-r1" x="0" y="532.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-21)">│</text><text class="terminal-3635844666-r1" x="24.4" y="532.4" textLength="463.6" clip-path="url(#terminal-3635844666-line-21)">senaryo:&#160;Karşılaştırılacak&#160;geçmiş&#160;yok.</text><text class="terminal-3635844666-r1" x="1207.8" y="532.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-21)">│</text><text class="terminal-3635844666-r1" x="1220" y="532.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-21)">
+</text><text class="terminal-3635844666-r1" x="0" y="556.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-22)">│</text><text class="terminal-3635844666-r1" x="24.4" y="556.8" textLength="597.8" clip-path="url(#terminal-3635844666-line-22)">yapı:&#160;Yapı&#160;iskeleti&#160;son&#160;10&#160;videoda&#160;kullanılmamış.</text><text class="terminal-3635844666-r1" x="1207.8" y="556.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-22)">│</text><text class="terminal-3635844666-r1" x="1220" y="556.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-22)">
+</text><text class="terminal-3635844666-r1" x="0" y="581.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-23)">│</text><text class="terminal-3635844666-r1" x="24.4" y="581.2" textLength="768.6" clip-path="url(#terminal-3635844666-line-23)">başlık:&#160;Başlık&#160;şablonu&#160;arka&#160;arkaya&#160;0&#160;kez&#160;kullanılmış&#160;(sınır&#160;3).</text><text class="terminal-3635844666-r1" x="1207.8" y="581.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-23)">│</text><text class="terminal-3635844666-r1" x="1220" y="581.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-23)">
+</text><text class="terminal-3635844666-r1" x="0" y="605.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-24)">│</text><text class="terminal-3635844666-r1" x="24.4" y="605.6" textLength="622.2" clip-path="url(#terminal-3635844666-line-24)">görsel:&#160;En&#160;yüksek&#160;asset&#160;örtüşmesi&#160;0.00&#160;(eşik&#160;0.60).</text><text class="terminal-3635844666-r1" x="1207.8" y="605.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-24)">│</text><text class="terminal-3635844666-r1" x="1220" y="605.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-24)">
+</text><text class="terminal-3635844666-r1" x="0" y="630" textLength="12.2" clip-path="url(#terminal-3635844666-line-25)">│</text><text class="terminal-3635844666-r1" x="24.4" y="630" textLength="597.8" clip-path="url(#terminal-3635844666-line-25)">ses:&#160;Ses&#160;arka&#160;arkaya&#160;0&#160;kez&#160;kullanılmış&#160;(sınır&#160;4).</text><text class="terminal-3635844666-r1" x="1207.8" y="630" textLength="12.2" clip-path="url(#terminal-3635844666-line-25)">│</text><text class="terminal-3635844666-r1" x="1220" y="630" textLength="12.2" clip-path="url(#terminal-3635844666-line-25)">
+</text><text class="terminal-3635844666-r1" x="0" y="654.4" textLength="1220" clip-path="url(#terminal-3635844666-line-26)">└──────────────────────────────────────────────────────────────────────────────────────────────────┘</text><text class="terminal-3635844666-r1" x="1220" y="654.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-26)">
+</text><text class="terminal-3635844666-r1" x="1220" y="678.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-27)">
+</text><text class="terminal-3635844666-r2" x="0" y="703.2" textLength="134.2" clip-path="url(#terminal-3635844666-line-28)">Değer&#160;testi</text><text class="terminal-3635844666-r1" x="134.2" y="703.2" textLength="158.6" clip-path="url(#terminal-3635844666-line-28)">&#160;—&#160;biri&#160;bile&#160;</text><text class="terminal-3635844666-r3" x="292.8" y="703.2" textLength="85.4" clip-path="url(#terminal-3635844666-line-28)">&#x27;hayır&#x27;</text><text class="terminal-3635844666-r1" x="378.2" y="703.2" textLength="146.4" clip-path="url(#terminal-3635844666-line-28)">&#160;ise&#160;reddet:</text><text class="terminal-3635844666-r1" x="1220" y="703.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-28)">
+</text><text class="terminal-3635844666-r1" x="1220" y="727.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-29)">
+</text><text class="terminal-3635844666-r4" x="24.4" y="752" textLength="12.2" clip-path="url(#terminal-3635844666-line-30)">1</text><text class="terminal-3635844666-r1" x="36.6" y="752" textLength="549" clip-path="url(#terminal-3635844666-line-30)">.&#160;Bu&#160;bölümün&#160;kendine&#160;ait&#160;bir&#160;hikâyesi&#160;var&#160;mı&#160;</text><text class="terminal-3635844666-r2" x="585.6" y="752" textLength="12.2" clip-path="url(#terminal-3635844666-line-30)">(</text><text class="terminal-3635844666-r1" x="597.8" y="752" textLength="475.8" clip-path="url(#terminal-3635844666-line-30)">başka&#160;bölümün&#160;yeniden&#160;düzenlemesi&#160;değil</text><text class="terminal-3635844666-r2" x="1073.6" y="752" textLength="12.2" clip-path="url(#terminal-3635844666-line-30)">)</text><text class="terminal-3635844666-r1" x="1085.8" y="752" textLength="12.2" clip-path="url(#terminal-3635844666-line-30)">?</text><text class="terminal-3635844666-r1" x="1220" y="752" textLength="12.2" clip-path="url(#terminal-3635844666-line-30)">
+</text><text class="terminal-3635844666-r4" x="24.4" y="776.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-31)">2</text><text class="terminal-3635844666-r1" x="36.6" y="776.4" textLength="902.8" clip-path="url(#terminal-3635844666-line-31)">.&#160;Karakterler&#160;bu&#160;bölümde&#160;bir&#160;şey&#160;yapıyor&#160;mu,&#160;sadece&#160;sahne&#160;mi&#160;değiştiriyor?</text><text class="terminal-3635844666-r1" x="1220" y="776.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-31)">
+</text><text class="terminal-3635844666-r4" x="24.4" y="800.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-32)">3</text><text class="terminal-3635844666-r1" x="36.6" y="800.8" textLength="829.6" clip-path="url(#terminal-3635844666-line-32)">.&#160;Bir&#160;çocuk&#160;bunu&#160;izledikten&#160;sonra&#160;anlatabileceği&#160;bir&#160;şey&#160;kalıyor&#160;mu?</text><text class="terminal-3635844666-r1" x="1220" y="800.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-32)">
+</text><text class="terminal-3635844666-r4" x="24.4" y="825.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-33)">4</text><text class="terminal-3635844666-r1" x="36.6" y="825.2" textLength="744.2" clip-path="url(#terminal-3635844666-line-33)">.&#160;Görseller&#160;anlatıyı&#160;taşıyor&#160;mu,&#160;yoksa&#160;arka&#160;plan&#160;döşemesi&#160;mi?</text><text class="terminal-3635844666-r1" x="1220" y="825.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-33)">
+</text><text class="terminal-3635844666-r4" x="24.4" y="849.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-34)">5</text><text class="terminal-3635844666-r1" x="36.6" y="849.6" textLength="207.4" clip-path="url(#terminal-3635844666-line-34)">.&#160;Bu&#160;videoyu&#160;son&#160;</text><text class="terminal-3635844666-r4" x="244" y="849.6" textLength="24.4" clip-path="url(#terminal-3635844666-line-34)">10</text><text class="terminal-3635844666-r1" x="268.4" y="849.6" textLength="683.2" clip-path="url(#terminal-3635844666-line-34)">&#160;bölümden&#160;ayıran&#160;şeyi&#160;tek&#160;cümleyle&#160;söyleyebiliyor&#160;muyum?</text><text class="terminal-3635844666-r1" x="1220" y="849.6" textLength="12.2" clip-path="url(#terminal-3635844666-line-34)">
+</text><text class="terminal-3635844666-r1" x="1220" y="874" textLength="12.2" clip-path="url(#terminal-3635844666-line-35)">
+</text><text class="terminal-3635844666-r5" x="0" y="898.4" textLength="244" clip-path="url(#terminal-3635844666-line-36)">Videoyu&#160;izle,&#160;sonra:</text><text class="terminal-3635844666-r1" x="1220" y="898.4" textLength="12.2" clip-path="url(#terminal-3635844666-line-36)">
+</text><text class="terminal-3635844666-r5" x="0" y="922.8" textLength="244" clip-path="url(#terminal-3635844666-line-37)">&#160;&#160;otomasyon&#160;approve&#160;</text><text class="terminal-3635844666-r6" x="244" y="922.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-37)">1</text><text class="terminal-3635844666-r1" x="1220" y="922.8" textLength="12.2" clip-path="url(#terminal-3635844666-line-37)">
+</text><text class="terminal-3635844666-r5" x="0" y="947.2" textLength="231.8" clip-path="url(#terminal-3635844666-line-38)">&#160;&#160;otomasyon&#160;reject&#160;</text><text class="terminal-3635844666-r6" x="231.8" y="947.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-38)">1</text><text class="terminal-3635844666-r7" x="256.2" y="947.2" textLength="109.8" clip-path="url(#terminal-3635844666-line-38)">&quot;gerekçe&quot;</text><text class="terminal-3635844666-r1" x="1220" y="947.2" textLength="12.2" clip-path="url(#terminal-3635844666-line-38)">
+</text>
+    </g>
+    </g>
+</svg>

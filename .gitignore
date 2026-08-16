@@ -1,0 +1,43 @@
+# Sırlar
+.env
+*.key
+*.pem
+client_secret*.json
+token*.json
+
+# Python
+__pycache__/
+*.py[cod]
+.venv/
+venv/
+*.egg-info/
+.pytest_cache/
+.ruff_cache/
+
+# Node / Remotion
+node_modules/
+.remotion/
+out/
+build/
+dist/
+
+# Veri (D:'de yaşar, asla commit'lenmez)
+data/
+output/
+assets/generated/
+*.mp4
+*.mov
+*.wav
+*.mp3
+*.png
+!remotion/src/assets/**/*.png
+# README görselleri — üretilmiş çıktı değil, repo içeriği
+!docs/images/**/*.png
+
+# Yerel
+.claude/settings.local.json
+.DS_Store
+Thumbs.db
+*.log
+*.sqlite
+*.sqlite3
