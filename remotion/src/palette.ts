@@ -61,3 +61,29 @@ export const PALETTES: Record<Mood, Palette> = {
 export function paletteFor(mood: Mood): Palette {
   return PALETTES[mood] ?? PALETTES.calm;
 }
+
+/**
+ * İki rengi karıştırır. `t=0` → a, `t=1` → b.
+ *
+ * Hava perspektifi için: uzak katmanlar gökyüzü rengine doğru açılır. Bu
+ * olmadan arazi siluetleri zeminle aynı rengi paylaşıyor ve görünmez oluyordu
+ * — karlı ormanda ekranda kalan tek şey kar başlıklarıydı.
+ */
+export function mix(a: string, b: string, t: number): string {
+  const parse = (hex: string): [number, number, number] => {
+    const h = hex.replace("#", "");
+    return [
+      parseInt(h.slice(0, 2), 16),
+      parseInt(h.slice(2, 4), 16),
+      parseInt(h.slice(4, 6), 16),
+    ];
+  };
+  const [r1, g1, b1] = parse(a);
+  const [r2, g2, b2] = parse(b);
+  const k = Math.max(0, Math.min(1, t));
+  const to = (x: number, y: number) =>
+    Math.round(x + (y - x) * k)
+      .toString(16)
+      .padStart(2, "0");
+  return `#${to(r1, r2)}${to(g1, g2)}${to(b1, b2)}`;
+}

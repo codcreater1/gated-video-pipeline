@@ -1,6 +1,9 @@
 import React from "react";
 import { AbsoluteFill, interpolate } from "remotion";
 
+import { BackdropFar, BackdropFrame, BackdropNear } from "./backgrounds/Backdrop";
+import { BASELINE_PCT, GROUND_TOP_PCT } from "./backgrounds/layout";
+import { backdropOf } from "./backgrounds/terrain";
 import { Companion } from "./characters/Companion";
 import { Fen, type Pose, isPose } from "./characters/Fen";
 import { paletteFor } from "./palette";
@@ -13,7 +16,14 @@ import type { Scene } from "./schema";
  * sinyali. Ayrıca düşük hareket = düşük kare-farkı, h264 bunu çok iyi sıkıştırıyor
  * ve bu CPU'da render süresini kısaltıyor (ölçüldü: 8.2 kare/sn).
  *
- * Katman sırası: gökyüzü → uzak siluet → ışık havuzu → zemin → su → karakterler.
+ * Katman sırası:
+ *   gökyüzü → yıldız → ay → MEKÂN (uzak) → ışık → zemin → su →
+ *   MEKÂN (yakın) → karakterler → MEKÂN (çerçeve)
+ *
+ * Mekân katmanları `scene.assets.background` kimliğinden gelir. Bu bağlantı
+ * bir süre eksikti: sahne kimliği ne olursa olsun aynı ağaç hattı ve aynı
+ * dere çiziliyordu, yani varyasyon kapısının görsel ekseni ekranda karşılığı
+ * olmayan bir çeşitliliği ölçüyordu.
  */
 
 type Props = {
@@ -43,8 +53,17 @@ const Sky: React.FC<{ top: string; bottom: string; drift: number }> = ({
   />
 );
 
-/** Yıldız alanı — deterministik konum, sahne boyunca çok yavaş sönümlenme. */
-const Stars: React.FC<{ ink: string; phase: number }> = ({ ink, phase }) => {
+/** Yıldız alanı — deterministik konum, sahne boyunca çok yavaş sönümlenme.
+ *
+ * `visibility` mekândan gelir: sisli bir tepede yıldız görünmez, açıklıkta
+ * gökyüzü kanalın en açık hâlidir. Yıldızları her mekânda aynı yoğunlukta
+ * çizmek, mekânları birbirine benzeten şeylerden biriydi.
+ */
+const Stars: React.FC<{ ink: string; phase: number; visibility: number }> = ({
+  ink,
+  phase,
+  visibility,
+}) => {
   // Sabit tohum: yıldızlar sahneden sahneye zıplamaz, gökyüzü kararlı kalır.
   const stars = React.useMemo(() => {
     let seed = 20260813;
@@ -70,7 +89,10 @@ const Stars: React.FC<{ ink: string; phase: number }> = ({ ink, phase }) => {
             cy={s.y}
             r={s.r}
             fill={ink}
-            opacity={0.12 + 0.28 * (0.5 + 0.5 * Math.sin((phase + s.off) * Math.PI * 2))}
+            opacity={
+              visibility *
+              (0.12 + 0.28 * (0.5 + 0.5 * Math.sin((phase + s.off) * Math.PI * 2)))
+            }
           />
         ))}
       </svg>
@@ -93,22 +115,6 @@ const Moon: React.FC<{ accent: string; glow: number }> = ({ accent, glow }) => (
   </AbsoluteFill>
 );
 
-/** Uzak ağaç hattı — derinlik verir, dikkat çekmez. */
-const Treeline: React.FC<{ color: string }> = ({ color }) => (
-  <AbsoluteFill style={{ top: "48%" }}>
-    <svg width="100%" height="100%" viewBox="0 0 1920 560" preserveAspectRatio="none">
-      <path
-        d="M0 160 L90 70 L170 150 L250 60 L330 140 L420 80 L500 150 L590 70
-           L680 145 L770 90 L860 155 L950 65 L1040 140 L1130 85 L1220 150
-           L1310 70 L1400 145 L1490 90 L1580 150 L1670 75 L1760 140 L1850 95
-           L1920 150 L1920 560 L0 560 Z"
-        fill={color}
-        opacity={0.5}
-      />
-    </svg>
-  </AbsoluteFill>
-);
-
 const Glow: React.FC<{ color: string; intensity: number }> = ({ color, intensity }) => {
   const alpha = Math.round(20 + intensity * 24)
     .toString(16)
@@ -123,21 +129,17 @@ const Glow: React.FC<{ color: string; intensity: number }> = ({ color, intensity
 };
 
 /**
- * Karakterlerin ayak bastığı çizgi. Zemin, karakterler ve su hep buna göre
- * konumlanır — ayrı ayrı yüzde değerleri vermek, bir katman değiştiğinde
- * figürlerin havada kalmasına yol açıyordu.
- */
-const BASELINE_PCT = 72;
-
-/**
  * Zemin kasıtlı olarak neredeyse düz: belirgin elips eğrisi, farklı x'lerde
  * duran karakterlerin farklı yüksekliklere denk gelmesine ve havada durur
  * görünmesine sebep oluyordu. Hafif kavis derinlik için yeterli.
+ *
+ * Taban çizgisi artık `backgrounds/layout.ts`'te: mekân katmanları da aynı
+ * çizgilere oturmak zorunda ve iki yerde tutmak kaçınılmaz olarak kayardı.
  */
 const Ground: React.FC<{ color: string; rise: number }> = ({ color, rise }) => (
   <AbsoluteFill
     style={{
-      top: `${BASELINE_PCT - 4 + rise}%`,
+      top: `${GROUND_TOP_PCT + rise}%`,
       background: color,
       borderTopLeftRadius: "50% 6%",
       borderTopRightRadius: "50% 6%",
@@ -187,6 +189,8 @@ export const SceneView: React.FC<Props> = ({ scene, localFrame, durationInFrames
   const b = breathe(localFrame, durationInFrames);
   const heroPose = poseFrom(scene.assets.character);
   const hasCompanion = Boolean(scene.assets.companion);
+  const spec = backdropOf(scene.assets.background);
+  const layer = { spec, palette, breath: b };
 
   // Sabit kadraj ölü görünüyor, hızlı hareket uyandırıyor. %1.5 doğru aralık.
   const zoom = interpolate(localFrame, [0, durationInFrames], [1, 1.015], {
@@ -199,12 +203,20 @@ export const SceneView: React.FC<Props> = ({ scene, localFrame, durationInFrames
   return (
     <AbsoluteFill style={{ transform: `scale(${zoom})`, transformOrigin: "50% 58%" }}>
       <Sky top={palette.skyTop} bottom={palette.skyBottom} drift={b} />
-      <Stars ink={palette.ink} phase={localFrame / Math.max(1, durationInFrames)} />
+      <Stars
+        ink={palette.ink}
+        phase={localFrame / Math.max(1, durationInFrames)}
+        visibility={spec.starVisibility}
+      />
       <Moon accent={palette.accent} glow={b} />
-      <Treeline color={palette.ground} />
+      <BackdropFar {...layer} />
       <Glow color={palette.accent} intensity={b} />
       <Ground color={palette.ground} rise={b * 0.5} />
-      <Water accent={palette.accent} drift={b} />
+      {/* Su her mekânda yok: dere Fen'in evi ama kumsalda deniz, çayırda
+          hiç su olmaz. Su şeridini her sahneye çizmek mekânları birbirine
+          benzeten en büyük etkendi. */}
+      {spec.hasWater ? <Water accent={palette.accent} drift={b} /> : null}
+      <BackdropNear {...layer} />
 
       {/* Karakterler tabana OTURUR — kutunun alt kenarı BASELINE'a hizalanır,
           böylece bir katman değişince figürler havada kalmaz. */}
@@ -222,6 +234,10 @@ export const SceneView: React.FC<Props> = ({ scene, localFrame, durationInFrames
           />
         </div>
       ) : null}
+
+      {/* Kadrajı çerçeveleyen katman — karakterlerin ÖNÜNDE. Yalnızca ağaç
+          kovuğu kullanıyor; "içeride olma" hissini veren şey bu. */}
+      <BackdropFrame {...layer} />
     </AbsoluteFill>
   );
 };

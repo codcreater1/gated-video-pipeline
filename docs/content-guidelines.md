@@ -105,7 +105,11 @@ Code-based vector art (SVG/React). Character consistency is guaranteed **by cons
 - Very slow motion: a single breathing cycle, 1.5% zoom
 - The moon and stars are a fixed celestial anchor
 
-This is a first version. The art direction will be upgraded later; because `remotion/src/SceneView.tsx` is isolated, the rest stays untouched.
+The same rule extends to places. Each of the 12 settings has its own terrain in `remotion/src/backgrounds/`, resolved from the scene's asset identifier rather than from the mood — a snowy pine forest, a moonlit lake and a bamboo grove have to be distinguishable on screen, not only in the database. Water is drawn only where the setting has water.
+
+This matters for §2 as much as for art direction: if every episode renders the same backdrop, the variation gate keeps passing identifiers that differ while the viewer sees one repeated video — which is precisely the pattern the inauthentic-content policy describes.
+
+This is a first version. The art direction will be upgraded later; because `remotion/src/SceneView.tsx` and the backdrop layers are isolated, the rest stays untouched.
 
 - Slow pacing, warm palette, calm music
 - Characters model calm and curious behaviour

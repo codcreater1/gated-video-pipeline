@@ -216,13 +216,36 @@ Measurement uses `averageViewPercentage`, not views. Views scale with subscriber
 
 A test asserts that with the maximum weight applied, **every** value in the pool is still reachable. That test exists because the failure it guards against is silent: a pipeline that slowly narrows until the variation gate stops it.
 
+## The asset pack, and a gate that was measuring nothing
+
+`storyboard.py` derives an asset identifier for every scene — `bg/kar_altinda_cam_ormani/dusk`, `char/uzun_bacakli_balikcil/standing` — and the variation gate's visual axis compares those identifiers between episodes.
+
+For a while, `SceneView.tsx` never read the background identifier. Whether the scene was a snowy pine forest, a beach or a bamboo grove, it drew the same treeline and the same stream. The identifiers differed, so the gate reported variation; the screen showed none. **The gate was measuring something that did not exist.**
+
+[`remotion/src/backgrounds/`](remotion/src/backgrounds/) closes that gap. Each of the 12 settings resolves to its own terrain — and the pack is code, not files, because `docs/content-guidelines.md §4` requires consistency *by construction*: the same identifier renders the same place in every episode, with no image model and no per-frame cost.
+
+| | |
+|:--:|:--:|
+| ![Snowy pine forest](docs/images/settings/kar_altinda_cam_ormani.png) | ![Bamboo grove](docs/images/settings/bambu_korusu.png) |
+| *snowy pine forest* | *bamboo grove* |
+| ![Shore](docs/images/settings/sahil_kumsali.png) | ![Tree hollow](docs/images/settings/buyuk_bir_agacin_kovugu.png) |
+| *shore* | *inside a tree hollow* |
+
+Water only appears where it belongs — a stream for Fen's home, a moonlit lake, surf at the shore, and nothing at all in a meadow. Drawing the same water strip into every scene was the single biggest reason the settings looked alike.
+
+### Keeping two languages in sync
+
+Identifiers are generated in Python and resolved in TypeScript, in separate files that no compiler checks together. That produces a silent failure: add a setting to the pool, forget the renderer, and it quietly falls back to the default terrain — recreating the exact bug above.
+
+So [`tests/test_backgrounds.py`](tests/test_backgrounds.py) parses the TypeScript keyword tables and asserts against the Python pools: every setting resolves, every companion resolves, and **no two settings collapse onto the same terrain**. It also pins the ordering that makes `kar_altinda_cam_ormani` match snow rather than plain forest — it contains both keywords, and the wrong order silently drops the snow.
+
 ## Status
 
-Implemented and tested end to end: ideation with performance feedback, scripting, storyboarding, narration, TTS, rendering, all four gates, the review queue, YouTube publishing, post-publish analytics, the database, and the CLI — **144 tests**, run on every push by CI.
+Implemented and tested end to end: ideation with performance feedback, scripting, storyboarding, narration, TTS, the background pack, rendering, all four gates, the review queue, YouTube publishing, post-publish analytics, the database, and the CLI — **154 tests**, run on every push by CI.
 
 Neither the upload nor the analytics path touches a Google API in tests: the uploader and the metrics fetcher are both injectable, so the tests assert what *would* be sent and what *would* be done with what comes back.
 
-Not yet built: the asset pack. `storyboard.py` derives asset identifiers (`bg/mossy_stream/dusk`, `char/heron/standing`) that the Remotion layer currently renders from code-drawn vectors. When a real asset pack arrives, those identifiers map onto files and no Python changes.
+Next: Channel B is written and configured but stays inactive until Channel A has 30+ episodes and real retention data. One channel is faster to learn from and presents a smaller policy surface.
 
 ## Project layout
 
@@ -238,8 +261,10 @@ Not yet built: the asset pack. `storyboard.py` derives asset identifiers (`bg/mo
 │  ├─ analytics.py     #   retention → bounded ideation weights
 │  └─ config.py, db.py, doctor.py, cli.py
 ├─ remotion/           # video templates (React + TypeScript)
-│  └─ src/characters/  #   Fen and companions, drawn in SVG
-├─ tests/              # 144 tests, no external-drive dependency
+│  └─ src/
+│     ├─ characters/   #   Fen and companions, drawn in SVG
+│     └─ backgrounds/  #   12 terrains resolved from the asset id
+├─ tests/              # 154 tests, no external-drive dependency
 ├─ scripts/n8n.ps1     # n8n launcher
 └─ docs/
 ```
