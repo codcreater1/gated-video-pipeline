@@ -165,20 +165,54 @@ def _recent_axis_values(channel: str, limit: int = 8) -> dict[str, list[str]]:
     return out
 
 
+def _weighted_choice(
+    rng: random.Random,
+    pool: list[Any],
+    weights: dict[str, float] | None,
+    key=lambda item: item,
+) -> Any:
+    """Havuzdan ağırlıklı seçim. Ağırlık yoksa düzgün rastgele.
+
+    Ağırlıklar `core.analytics`'ten gelir ve kırpılmıştır — hiçbir değer
+    sıfırlanmaz, yani ağırlıklandırma havuzu daraltmaz, yalnızca eğer.
+    Bu kasıtlı: varyasyon kapısı zaten benzer bölümleri reddediyor ve geri
+    beslemenin havuzu tek bir "kazanan" değere çökertmesi hattı kilitlerdi.
+    """
+    if not weights:
+        return rng.choice(pool)
+    w = [weights.get(str(key(item)), 1.0) for item in pool]
+    if not any(w):
+        return rng.choice(pool)
+    return rng.choices(pool, weights=w, k=1)[0]
+
+
 def generate(
     channel: config.Channel,
     max_attempts: int = 200,
     rng: random.Random | None = None,
+    weights: dict[str, dict[str, float]] | None = None,
 ) -> Premise:
     """Kullanılmamış bir bileşim üretir.
 
     Son 8 bölümde kullanılan mekân/karakter/şekil değerleri elenir — bu, varyasyon
     kapısına gitmeden önceki ilk filtredir.
+
+    `weights` verilmezse yayın sonrası performanstan hesaplanır: iyi tutan
+    mekân/misafir/şekil değerleri daha sık seçilir. Ağırlıklar sınırlıdır
+    (bkz. `core.analytics`), çünkü buradaki asıl risk optimizasyonun az
+    olması değil, fazla olması.
     """
     rng = rng or random.Random()
     topics, settings, characters = _pools(channel)
     used = _used_combos(channel.value)
     recent = _recent_axis_values(channel.value)
+
+    if weights is None:
+        # Tembel import: `analytics` → `publish` → `storyboard` → `ideation`
+        # zinciri modül seviyesinde döngü yaratırdı.
+        from core import analytics
+
+        weights = analytics.axis_weights(channel)
 
     # Son 3 bölümün şekli tekrar seçilmez — "yapı" ekseninin kaynak önlemi.
     blocked_shapes = set(recent["shape"][:3])
@@ -201,9 +235,11 @@ def generate(
         premise = Premise(
             channel=channel.value,
             topic=rng.choice(topics),
-            setting=rng.choice(setting_pool),
-            character=rng.choice(char_pool),
-            shape=rng.choice(shape_pool),
+            setting=_weighted_choice(rng, setting_pool, weights.get("setting")),
+            character=_weighted_choice(rng, char_pool, weights.get("character")),
+            shape=_weighted_choice(
+                rng, shape_pool, weights.get("shape"), key=lambda s: s["name"]
+            ),
         )
 
         if premise.combo_key not in used:

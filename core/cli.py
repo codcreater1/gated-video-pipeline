@@ -10,6 +10,7 @@
     otomasyon authorize <kanal> # YouTube OAuth (kanal başına bir kez)
     otomasyon uploads           # yükleme bekleyen onaylı işler
     otomasyon publish <id>      # YouTube'a yükle
+    otomasyon analytics         # yayın sonrası performans ve eksen ağırlıkları
 """
 
 from __future__ import annotations
@@ -288,6 +289,65 @@ def publish(
             title=f"Yayınlandı — İş #{job_id}",
         )
     )
+
+
+@app.command()
+def analytics(
+    refresh: bool = typer.Option(False, help="Önce YouTube'dan ölçümleri çek"),
+    channel: str = typer.Option("bedtime", help="Kanal"),
+) -> None:
+    """Yayın sonrası performans ve ideation'a giden eksen ağırlıkları.
+
+    Ağırlıklar sınırlıdır: en iyi eksen değeri nötre göre en fazla iki kat
+    olası. Sınırsız optimizasyon varyasyon kapısını tetikler.
+    """
+    from core import analytics as an
+
+    try:
+        ch = config.Channel(channel)
+    except ValueError as exc:
+        console.print(f"[red]Bilinmeyen kanal: {channel}[/red]")
+        raise typer.Exit(1) from exc
+
+    if refresh:
+        with console.status("YouTube'dan ölçümler çekiliyor…"):
+            stats = an.refresh(ch)
+        console.print(f"[green]{len(stats)} video ölçüldü.[/green]\n")
+
+    s = an.summary(ch)
+    if not s["measured"]:
+        console.print(
+            "Ölçülmüş video yok. Yayından sonra en az "
+            f"{config.ANALYTICS_MIN_VIDEO_AGE_DAYS} gün geçmeli, sonra: "
+            "[dim]otomasyon analytics --refresh[/dim]"
+        )
+        return
+
+    console.print(
+        Panel(
+            f"Ölçülen video: [bold]{s['measured']}[/bold]\n"
+            f"Toplam izlenme: {s['total_views']:,}\n"
+            f"Ortalama tutma: [bold]%{s['mean_retention']:.1f}[/bold]",
+            title="Kanal performansı",
+        )
+    )
+
+    for axis, scores in s["axes"].items():
+        if not scores:
+            continue
+        table = Table(title=f"{axis} — ideation ağırlıkları")
+        table.add_column("Değer")
+        table.add_column("Bölüm", justify="right")
+        table.add_column("Tutma", justify="right")
+        table.add_column("Ağırlık", justify="right")
+        for sc in scores[:8]:
+            table.add_row(
+                sc.value,
+                str(sc.samples),
+                f"%{sc.mean_retention:.1f}",
+                f"×{sc.weight:.2f}" if sc.confident else "[dim]×1.00 (az veri)[/dim]",
+            )
+        console.print(table)
 
 
 if __name__ == "__main__":

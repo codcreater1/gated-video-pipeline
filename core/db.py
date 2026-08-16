@@ -289,6 +289,83 @@ def recent_fingerprints(
 
 
 # --------------------------------------------------------------------------
+# Yayın sonrası performans
+# --------------------------------------------------------------------------
+
+def record_analytics(
+    job_id: int,
+    youtube_video_id: str,
+    views: int,
+    avg_view_duration_s: int,
+    retention_pct: float,
+) -> None:
+    """Bir ölçüm anını yazar.
+
+    Güncelleme değil ekleme: aynı video için birden çok satır birikir ve
+    performansın zaman içindeki seyri korunur. Bir videonun 7. gündeki
+    retention'ı ile 90. gündeki farklıdır ve ikisi de bilgi.
+    """
+    with connect() as conn:
+        conn.execute(
+            "INSERT INTO analytics "
+            "(job_id, youtube_video_id, views, avg_view_duration_s, retention_pct, fetched_at) "
+            "VALUES (?, ?, ?, ?, ?, ?)",
+            (job_id, youtube_video_id, views, avg_view_duration_s, retention_pct, _now()),
+        )
+
+
+def latest_analytics(job_id: int) -> dict[str, Any] | None:
+    """İşin en son ölçümü."""
+    with connect() as conn:
+        row = conn.execute(
+            "SELECT * FROM analytics WHERE job_id = ? ORDER BY fetched_at DESC LIMIT 1",
+            (job_id,),
+        ).fetchone()
+        return dict(row) if row else None
+
+
+def published_with_analytics(channel: str) -> list[dict[str, Any]]:
+    """Yayınlanmış işler + en son ölçümleri.
+
+    Eksen performansı bunun üzerinden hesaplanır: `storyboard_json` premise'i
+    taşıyor, analytics satırı da o bölümün sonucunu. İkisini birleştirmek
+    "hangi mekân daha iyi tuttu" sorusunun tek kaynağı.
+    """
+    with connect() as conn:
+        rows = conn.execute(
+            """
+            SELECT j.id, j.channel, j.title, j.storyboard_json, j.voice_id,
+                   j.published_at, j.youtube_video_id,
+                   a.views, a.avg_view_duration_s, a.retention_pct, a.fetched_at
+            FROM jobs j
+            JOIN analytics a ON a.id = (
+                SELECT id FROM analytics WHERE job_id = j.id
+                ORDER BY fetched_at DESC LIMIT 1
+            )
+            WHERE j.channel = ? AND j.status = ?
+            ORDER BY j.published_at DESC
+            """,
+            (channel, JobStatus.PUBLISHED.value),
+        ).fetchall()
+        return [dict(r) for r in rows]
+
+
+def published_awaiting_analytics(channel: str | None = None) -> list[dict[str, Any]]:
+    """Yayınlanmış ve YouTube kimliği olan işler — ölçüm çekilecek adaylar."""
+    sql = (
+        "SELECT * FROM jobs WHERE status = ? AND youtube_video_id IS NOT NULL "
+        "AND youtube_video_id != ''"
+    )
+    params: list[Any] = [JobStatus.PUBLISHED.value]
+    if channel:
+        sql += " AND channel = ?"
+        params.append(channel)
+    sql += " ORDER BY published_at DESC"
+    with connect() as conn:
+        return [dict(r) for r in conn.execute(sql, params).fetchall()]
+
+
+# --------------------------------------------------------------------------
 # Bakım
 # --------------------------------------------------------------------------
 

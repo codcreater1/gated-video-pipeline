@@ -34,9 +34,12 @@ from typing import Any, Protocol
 
 from core import approval, config, db, storyboard, variation_guard
 
-# Yalnızca yükleme yetkisi. Okuma/analytics ayrı bir scope ve ayrı bir onay
-# ekranı ister; kullanıcıdan ihtiyacımız olmayan yetkiyi istemiyoruz.
-SCOPES = ["https://www.googleapis.com/auth/youtube.upload"]
+# İki yetki isteniyor ve ikisi de kullanılıyor: yükleme bu modülde, okuma
+# `core.analytics`'te. Kanal başına tek onay ekranı; scope'ları ayrı token
+# dosyalarına bölmek kullanıcıyı iki kez tarayıcıya göndermek olurdu.
+UPLOAD_SCOPE = "https://www.googleapis.com/auth/youtube.upload"
+ANALYTICS_SCOPE = "https://www.googleapis.com/auth/yt-analytics.readonly"
+SCOPES = [UPLOAD_SCOPE, ANALYTICS_SCOPE]
 
 # 1 = Film & Animation. Çocuk animasyonu için doğru kategori; 24 (Entertainment)
 # daha genel ve öneri sinyalini zayıflatıyor.
@@ -164,11 +167,16 @@ def authorize(channel: config.Channel) -> Path:
     return target
 
 
-def _service(channel: config.Channel):
-    """Yetkilendirilmiş YouTube istemcisi. Süresi dolmuş token'ı yeniler.
+def credentials(channel: config.Channel, required_scope: str = UPLOAD_SCOPE):
+    """Yetkilendirilmiş kimlik. Süresi dolmuş token'ı yeniler.
 
     Token denetimi import'lardan ÖNCE: eksik yetkilendirme, eksik paketten
     çok daha yaygın bir durum ve kullanıcının önce göreceği hata o olmalı.
+
+    `required_scope` denetimi ayrı bir mesaj veriyor çünkü ayrı bir durum:
+    analytics scope'u sonradan eklendi ve daha önce yalnızca yükleme için
+    yetkilendirilmiş token'lar geçerli ama yetersiz. API'den 403 beklemek
+    kullanıcıya ne yapması gerektiğini söylemezdi.
     """
     path = token_path(channel)
     if not path.exists():
@@ -180,7 +188,6 @@ def _service(channel: config.Channel):
     _require_google()
     from google.auth.transport.requests import Request
     from google.oauth2.credentials import Credentials
-    from googleapiclient.discovery import build
 
     creds = Credentials.from_authorized_user_file(str(path), SCOPES)
     if not creds.valid:
@@ -192,6 +199,22 @@ def _service(channel: config.Channel):
                 f"{channel.value} token'ı geçersiz ve yenilenemiyor. "
                 f"Yeniden yetkilendir: otomasyon authorize {channel.value}"
             )
+
+    if not creds.has_scopes([required_scope]):
+        raise NotAuthorized(
+            f"{channel.value} token'ında gereken yetki yok: {required_scope}\n"
+            f"Token bu yetki eklenmeden önce alınmış. Yeniden yetkilendir: "
+            f"otomasyon authorize {channel.value}"
+        )
+
+    return creds
+
+
+def _service(channel: config.Channel):
+    """Yükleme için YouTube Data API istemcisi."""
+    creds = credentials(channel, required_scope=UPLOAD_SCOPE)
+
+    from googleapiclient.discovery import build
 
     # cache_discovery=False: discovery önbelleği oauth2client istiyor ve yoksa
     # her çağrıda gürültülü bir uyarı basıyor.

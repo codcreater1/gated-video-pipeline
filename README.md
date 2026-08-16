@@ -61,7 +61,10 @@ flowchart TD
     I -->|approved| L{daily cap + MFK<br/>re-checked at publish}
     L -->|cap reached| STOP4([hold — job stays approved])
     L --> M[publish.py → YouTube<br/>resumable upload]
+    M --> N[analytics.py<br/>retention, 7+ days later]
+    N -.->|bounded axis weights| A
 
+    style N fill:#3d5a3d,color:#fff
     style B fill:#8b2f2f,color:#fff
     style D fill:#8b2f2f,color:#fff
     style G fill:#8b2f2f,color:#fff
@@ -157,6 +160,7 @@ otomasyon doctor && otomasyon init
 | `otomasyon authorize <channel>` | YouTube OAuth, once per channel |
 | `otomasyon uploads` | Approved videos not yet uploaded |
 | `otomasyon publish <id>` | Upload to YouTube — the only irreversible command |
+| `otomasyon analytics [--refresh]` | Retention per episode and the axis weights it produces |
 | `otomasyon setup-node` | Fetch portable Node 22 for n8n (leaves system PATH alone) |
 
 ![otomasyon status](docs/images/cli-status.svg)
@@ -194,27 +198,48 @@ Uploads are resumable in 4 MB chunks with exponential backoff on 5xx — a 40 MB
 
 `snippet.defaultAudioLanguage` is set explicitly: YouTube's auto-dubbing does nothing without it, and leaving it empty would silently cancel the entire 27-language plan.
 
+## The feedback loop, and why it is deliberately weak
+
+[`core/analytics.py`](core/analytics.py) closes the only loop in the system: it reads retention for published episodes and weights `ideation`'s axis selection accordingly. Settings, companions and narrative shapes that held attention get picked more often.
+
+The interesting constraint is that **this feature must not work too well.** "Do more of what performed" is the instinct behind every recommendation-driven content operation, and followed honestly it converges on one setting, one companion, one shape — which is the exact pattern the variation gate rejects and the exact pattern the inauthentic-content policy targets. An unbounded optimizer here does not grow the channel; it terminates it.
+
+So the weighting is clamped in three places:
+
+| Bound | Value | What it prevents |
+|---|---|---|
+| Minimum samples before a value's weight moves | 3 episodes | One lucky video dominating the pool |
+| Weight range | `0.5 – 2.0` | The best value is at most twice as likely as neutral — never exclusive |
+| Floor above zero | no value reaches 0 | Feedback can bias the pool, never prune it |
+
+Measurement uses `averageViewPercentage`, not views. Views scale with subscriber count and whatever YouTube's distribution did that day; they say little about whether a given episode held attention. Nothing is measured until an episode is at least 7 days old — the first days are a notification wave, not performance.
+
+A test asserts that with the maximum weight applied, **every** value in the pool is still reachable. That test exists because the failure it guards against is silent: a pipeline that slowly narrows until the variation gate stops it.
+
 ## Status
 
-Implemented and tested end to end: ideation, scripting, storyboarding, narration, TTS, rendering, all four gates, the review queue, YouTube publishing, the database, and the CLI — **125 tests**, run on every push by CI. The upload path is fully covered without touching the Google API: the uploader is injectable, so the tests assert what *would* be sent.
+Implemented and tested end to end: ideation with performance feedback, scripting, storyboarding, narration, TTS, rendering, all four gates, the review queue, YouTube publishing, post-publish analytics, the database, and the CLI — **144 tests**, run on every push by CI.
 
-Not yet implemented: post-publish analytics feedback into ideation. The `analytics` table exists and the schema is in place; nothing writes to it yet.
+Neither the upload nor the analytics path touches a Google API in tests: the uploader and the metrics fetcher are both injectable, so the tests assert what *would* be sent and what *would* be done with what comes back.
+
+Not yet built: the asset pack. `storyboard.py` derives asset identifiers (`bg/mossy_stream/dusk`, `char/heron/standing`) that the Remotion layer currently renders from code-drawn vectors. When a real asset pack arrives, those identifiers map onto files and no Python changes.
 
 ## Project layout
 
 ```
 .
-├─ core/               # Python production logic (15 modules)
+├─ core/               # Python production logic (16 modules)
 │  ├─ pipeline.py      #   orchestrator — applies gates in order
 │  ├─ variation_guard.py, budget.py, approval.py   # the gates
 │  ├─ ideation.py, script.py, storyboard.py        # content generation
 │  ├─ narration.py, voice.py                       # Kokoro TTS
 │  ├─ render.py        #   Remotion driver
 │  ├─ publish.py       #   YouTube upload — the irreversible step
+│  ├─ analytics.py     #   retention → bounded ideation weights
 │  └─ config.py, db.py, doctor.py, cli.py
 ├─ remotion/           # video templates (React + TypeScript)
 │  └─ src/characters/  #   Fen and companions, drawn in SVG
-├─ tests/              # 125 tests, no external-drive dependency
+├─ tests/              # 144 tests, no external-drive dependency
 ├─ scripts/n8n.ps1     # n8n launcher
 └─ docs/
 ```

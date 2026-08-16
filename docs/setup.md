@@ -118,7 +118,9 @@ otomasyon authorize bedtime
 
 The token is written to `$OTOMASYON_DATA_ROOT/credentials/`, outside the repository, so committing it is not physically possible. `YT_CHANNEL_A_TOKEN_FILE` in `.env` overrides the location if you want it elsewhere.
 
-Only the `youtube.upload` scope is requested. Analytics needs a separate scope and a separate consent screen; asking for permissions we do not use yet is worse than asking twice.
+Two scopes are requested, and both are used: `youtube.upload` for publishing and `yt-analytics.readonly` for the post-publish feedback loop. They are requested together so the consent screen appears once per channel.
+
+> If you authorized a channel before the analytics scope was added, the existing token is valid but insufficient. `otomasyon analytics --refresh` will say so explicitly rather than returning a bare 403 — re-run `otomasyon authorize <channel>` to add the scope.
 
 > ⚠️ The most common mistake here is signing in with the wrong Google account. The browser page shows which channel is being authorized — check it before approving.
 
@@ -130,6 +132,12 @@ otomasyon uploads
 
 ```bash
 otomasyon publish 1
+```
+
+Once episodes are at least 7 days old, pull their performance and see the weights it feeds back into ideation:
+
+```bash
+otomasyon analytics --refresh
 ```
 
 > Quota note: `videos.insert` dropped from ~1600 to ~100 units on 4 December 2025, and since 1 June 2026 it has had its own daily bucket (~100 calls/day). It no longer competes with the read/search budget and is not a bottleneck at this volume — the pipeline's own daily ceiling is 2 long-form videos.

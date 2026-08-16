@@ -56,6 +56,8 @@ On 15 July 2025, "repetitious content" became **"inauthentic content"**. Categor
 | Image slideshows, or template stories with negligible narrative or educational substance | Every episode carries a real narrative arc; the slideshow format is banned |
 | Highly repetitive content where "each video does not offer creative, educational or other value to the viewer" | The approval gate — human judgment |
 
+**On performance feedback.** `core/analytics.py` weights idea generation by measured retention, and that mechanism is deliberately bounded (minimum 3 samples, weights clamped to 0.5–2.0, no value ever pruned). The reason belongs in this document rather than only in the code: an unbounded "do more of what performed" loop converges on a single setting and companion, which produces exactly the template-stamped output this policy prohibits. Optimizing hard against retention is, here, the same thing as optimizing toward demonetization.
+
 **AI persona rule:** AI personas that give information about health, law, finance or politics cannot be monetized. Children's stories do not touch those subjects — they are on the banned-topic list below.
 
 > Note: this policy page does **not** state an explicit disclosure requirement for AI content. Separately, YouTube Studio has an "altered or synthetic content" toggle for realistic-looking synthetic material. Animation and cartoon styles generally do not require it, but it is evaluated on every upload.

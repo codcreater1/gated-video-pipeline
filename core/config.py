@@ -229,6 +229,30 @@ VARIATION_MAX_VOICE_STREAK = 4
 
 
 # --------------------------------------------------------------------------
+# Analytics geri beslemesi
+# --------------------------------------------------------------------------
+# Yayın sonrası performans, ideation'ın eksen seçimini ağırlıklandırır.
+# Buradaki tüm sayılar tek bir gerilimi yönetiyor: geri besleme işe yarasın
+# ama varyasyonu boğmasın. En iyi performans gösteren mekânı her bölümde
+# seçmek, varyasyon kapısının hattı kilitlemesiyle biterdi.
+
+# Bir eksen değeri bu kadar bölümde kullanılmadan ağırlığı değişmez.
+# Tek şanslı videonun tüm havuzu domine etmesini engeller.
+ANALYTICS_MIN_SAMPLES = 3
+# Ağırlık tavanı ve tabanı. 2.0 = en iyi eksen değeri nötre göre en fazla iki
+# kat olası. Sınırsız bırakmak havuzu tek bir değere çökertirdi.
+ANALYTICS_MAX_WEIGHT = 2.0
+ANALYTICS_MIN_WEIGHT = 0.5
+# Ortalamadan sapmanın ağırlığa dönüşme katsayısı.
+ANALYTICS_BOOST = 1.5
+# Performans penceresi. Daha eskisi kanalın bugünkü kitlesini temsil etmiyor.
+ANALYTICS_LOOKBACK_DAYS = 90
+# Yayından bu kadar gün geçmeden retention okunmaz — ilk saatlerin verisi
+# kanalın gerçek performansı değil, bildirim dalgası.
+ANALYTICS_MIN_VIDEO_AGE_DAYS = 7
+
+
+# --------------------------------------------------------------------------
 # Render
 # --------------------------------------------------------------------------
 
