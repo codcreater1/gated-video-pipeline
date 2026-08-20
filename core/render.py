@@ -24,6 +24,9 @@ from core import config
 
 REMOTION_DIR = config.REPO_ROOT / "remotion"
 COMPOSITION_ID = "BedtimeEpisode"
+# Dikey Shorts. Boyutlar Remotion tarafında tanımlı (remotion/src/Root.tsx);
+# `config.SHORTS_WIDTH/HEIGHT` ile eşleştikleri testle doğrulanıyor.
+SHORT_COMPOSITION_ID = "BedtimeShort"
 
 # Remotion Node 25 ile çalışıyor (n8n'in aksine) — sistem Node'u kullanılır.
 # Render uzun sürer; bu sınır takılan bir işi sonsuza kadar beklememek için.
@@ -65,11 +68,15 @@ def render_episode(
     storyboard: dict[str, Any],
     audio_dir: Path,
     output_path: Path | None = None,
+    composition: str = COMPOSITION_ID,
 ) -> RenderResult:
     """Bir bölümü render eder.
 
     `audio_dir` Remotion'a `--public-dir` olarak verilir; storyboard'daki
     `audioSrc` alanları bu klasör içindeki dosya adlarıdır.
+
+    `composition` yatay bölüm ile dikey Short arasında seçim yapar. Kadraj ve
+    süre kompozisyonun kendi tanımından gelir; burada değişen tek şey kimlik.
     """
     import time
 
@@ -91,7 +98,7 @@ def render_episode(
         props_path = Path(tmp.name)
 
     cmd = [
-        _npx(), "remotion", "render", COMPOSITION_ID, str(out),
+        _npx(), "remotion", "render", composition, str(out),
         f"--props={props_path}",
         f"--public-dir={audio_dir}",
         "--log=error",
@@ -128,6 +135,28 @@ def render_episode(
         duration_seconds=probe_duration(out),
         size_bytes=out.stat().st_size,
         elapsed_seconds=elapsed,
+    )
+
+
+def render_short(
+    job_id: int,
+    storyboard: dict[str, Any],
+    audio_dir: Path,
+    output_path: Path | None = None,
+) -> RenderResult:
+    """Dikey Short render eder — 1080×1920.
+
+    Ayrı bir fonksiyon çünkü çıktı yolu da ayrı: Short'lar bölümlerle aynı
+    dizinde aynı adlandırmayı kullanırsa `job_<id>.mp4` çakışmaz ama insan
+    gözüyle ayırt edilemez hale gelir.
+    """
+    out = output_path or (config.OUTPUT_DIR / f"short_{job_id}.mp4")
+    return render_episode(
+        job_id=job_id,
+        storyboard=storyboard,
+        audio_dir=audio_dir,
+        output_path=out,
+        composition=SHORT_COMPOSITION_ID,
     )
 
 

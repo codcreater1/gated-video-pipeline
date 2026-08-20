@@ -175,7 +175,10 @@ def narrate(
 
 
 def check_variation(job_id: int, voice_id: str) -> StageResult:
-    """⛔ VARYASYON KAPISI — render'dan önce."""
+    """⛔ VARYASYON KAPISI — render'dan önce.
+
+    Karşılaştırma işin kendi formatıyla sınırlı; gerekçe `variation_guard.evaluate`.
+    """
     job = db.get_job(job_id)
     if job is None:
         raise ValueError(f"İş bulunamadı: {job_id}")
@@ -190,6 +193,7 @@ def check_variation(job_id: int, voice_id: str) -> StageResult:
         # Kahraman hariç — tekrar etmesi beklenen varlık kapıyı kilitlerdi.
         asset_ids=storyboard.variation_asset_ids(board),
         voice_id=voice_id,
+        fmt=job["format"],
     )
 
     notes = [f"{c.axis}: {c.detail}" for c in verdict.checks]

@@ -66,7 +66,11 @@ function depths(palette: Palette) {
 /** Uzak katmanların hepsi bu kutuya çizilir: ufuktan zeminin altına kadar. */
 const FarBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <AbsoluteFill style={{ top: `${HORIZON_PCT}%` }}>
-    <svg width="100%" height="100%" viewBox="0 0 1920 560" preserveAspectRatio="none">
+    {/* `slice`, `none` değil: yatay kadrajda ikisi aynı sonucu verir (oranlar
+        zaten örtüşüyor), ama dikey Shorts kadrajında `none` çamları ve ağaç
+        taçlarını eziyordu. `slice` şekilleri bozmadan ölçekleyip kenardan
+        kırpıyor — dar kadrajda arazinin ortası görünüyor. */}
+    <svg width="100%" height="100%" viewBox="0 0 1920 560" preserveAspectRatio="xMidYMid slice">
       {children}
     </svg>
   </AbsoluteFill>
@@ -75,7 +79,7 @@ const FarBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
 /** Yakın katmanlar zeminin üstüne oturur. */
 const NearBox: React.FC<{ children: React.ReactNode }> = ({ children }) => (
   <AbsoluteFill style={{ top: `${GROUND_TOP_PCT}%` }}>
-    <svg width="100%" height="100%" viewBox="0 0 1920 300" preserveAspectRatio="none">
+    <svg width="100%" height="100%" viewBox="0 0 1920 300" preserveAspectRatio="xMidYMid slice">
       {children}
     </svg>
   </AbsoluteFill>

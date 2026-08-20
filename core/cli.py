@@ -11,6 +11,8 @@
     otomasyon uploads           # yükleme bekleyen onaylı işler
     otomasyon publish <id>      # YouTube'a yükle
     otomasyon analytics         # yayın sonrası performans ve eksen ağırlıkları
+    otomasyon short <id>        # yayınlanmış bölümden dikey Short türet
+    otomasyon compile           # yayınlanmış bölümlerden 40-60 dk derleme
 """
 
 from __future__ import annotations
@@ -289,6 +291,79 @@ def publish(
             title=f"Yayınlandı — İş #{job_id}",
         )
     )
+
+
+@app.command()
+def short(
+    parent_job_id: int,
+    scene: int = typer.Option(0, help="Kaynak bölümün hangi sahnesi"),
+) -> None:
+    """Yayınlanmış bir bölümden dikey Short türetir ve onay kuyruğuna alır.
+
+    Yeni senaryo yazılmaz, yeni fikir üretilmez: LLM maliyeti $0. Made for Kids
+    bir kanalda Shorts, kalan tek native gelir yolu (docs/content-guidelines.md §1).
+    """
+    from core import shorts
+
+    try:
+        job_id, plan = shorts.create(parent_job_id, scene_index=scene)
+    except shorts.ShortError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+
+    card = approval.submit(
+        job_id, variation_notes=[f"#{parent_job_id} bölümünden türetildi"]
+    )
+    excerpt = plan.narration_text[:160]
+    if len(plan.narration_text) > 160:
+        excerpt += "…"
+
+    console.print(
+        Panel(
+            f"[bold]{card.title}[/bold]\n\n"
+            f"Kaynak: bölüm #{plan.parent_job_id}, sahne {plan.scene_index}\n"
+            f"Anlatım: {excerpt}",
+            title=f"Short hazır — İş #{job_id}",
+        )
+    )
+    console.print(f"\n[dim]İncelemek için: otomasyon review {job_id}[/dim]")
+
+
+@app.command("compile")
+def compile_cmd(
+    channel: str = typer.Option("bedtime", help="Kanal"),
+    target: int = typer.Option(0, help="Hedef süre (saniye); 0 = format hedefi"),
+) -> None:
+    """Yayınlanmış bölümleri 40-60 dakikalık tek videoda birleştirir.
+
+    Render EDİLMEZ, ffmpeg ile stream-copy birleştirilir — 60 dakikalık tek
+    parça render bu makinede ~2.3 saat sürerdi (docs/benchmarks.md).
+    """
+    from core import compilation
+
+    try:
+        ch = config.Channel(channel)
+    except ValueError as exc:
+        console.print(f"[red]Bilinmeyen kanal: {channel}[/red]")
+        raise typer.Exit(1) from exc
+
+    try:
+        with console.status("Bölümler birleştiriliyor…"):
+            job_id, plan = compilation.build(ch, target_seconds=target or None)
+    except compilation.CompilationError as exc:
+        console.print(f"[red]{exc}[/red]")
+        raise typer.Exit(1) from exc
+
+    table = Table(title=f"Derleme #{job_id} — {plan.total_seconds // 60} dakika")
+    table.add_column("Sıra", justify="right")
+    table.add_column("Bölüm", justify="right")
+    table.add_column("Başlık")
+    for i, m in enumerate(plan.members, 1):
+        table.add_row(str(i), f"#{m['id']}", m["title"] or "?")
+    console.print(table)
+
+    approval.submit(job_id, variation_notes=[f"{len(plan.members)} bölümden derlendi"])
+    console.print(f"\n[dim]İncelemek için: otomasyon review {job_id}[/dim]")
 
 
 @app.command()

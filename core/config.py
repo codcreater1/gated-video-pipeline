@@ -227,6 +227,12 @@ VARIATION_MAX_ASSET_OVERLAP = 0.60
 # Aynı ses arka arkaya en fazla bu kadar kullanılabilir.
 VARIATION_MAX_VOICE_STREAK = 4
 
+# Derlemeler için ayrı eşik. Derleme zaten yayınlanmış bölümlerden oluşuyor,
+# yani senaryo benzerliği ölçmek anlamsız — ölçülmesi gereken şey İKİ DERLEMENİN
+# aynı bölümleri paylaşıp paylaşmadığı. Aynı 12 bölümü farklı sırayla ikinci
+# kez yayınlamak, tekrar sinyalinin en çıplak hâli.
+COMPILATION_MAX_MEMBER_OVERLAP = 0.50
+
 
 # --------------------------------------------------------------------------
 # Analytics geri beslemesi

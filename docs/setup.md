@@ -134,6 +134,18 @@ otomasyon uploads
 otomasyon publish 1
 ```
 
+Once an episode is published you can derive the two cheaper formats from it — neither calls an LLM:
+
+```bash
+otomasyon short 1
+```
+
+```bash
+otomasyon compile
+```
+
+`short` takes one scene of a published episode, trims its narration at a sentence boundary and re-renders it vertically at 1080×1920. `compile` concatenates published episodes into a 40–60 minute assembly with `ffmpeg` stream copy. Both land in the same approval queue as episodes.
+
 Once episodes are at least 7 days old, pull their performance and see the weights it feeds back into ideation:
 
 ```bash

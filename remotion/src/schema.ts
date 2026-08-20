@@ -141,3 +141,21 @@ export const sampleEpisode: Episode = {
     },
   ],
 };
+
+/**
+ * Remotion Studio'da Short şablonunu boş açmamak için örnek veri.
+ *
+ * Yapısı bilerek `sampleEpisode` ile aynı: bir Short, ayrı bir içerik türü
+ * değil, bir bölümden kesilmiş tek sahnedir (bkz. `core/shorts.py`).
+ */
+export const sampleShort: Episode = {
+  ...sampleEpisode,
+  title: "Fen and the Lost Feather",
+  scenes: [
+    {
+      ...sampleEpisode.scenes[0]!,
+      narration: "Fen found a long grey feather resting on a wet stone.",
+      duration_seconds: 34,
+    },
+  ],
+};

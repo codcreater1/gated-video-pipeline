@@ -42,6 +42,8 @@ Super Chat / Super Stickers / Super Thanks, channel memberships, end screens, ca
 
 What stays available: **Shorts revenue sharing** — one of the few native monetization paths left on an MFK channel. This is why the Shorts cadence is not treated as optional.
 
+Shorts are produced by `core/shorts.py`, derived from already-published episodes rather than written fresh: no LLM call, no new idea, and the variety comes from the parent episode, which already passed the variation gate. Because a derived Short shares its text with its parent, the gate compares within a format lane — see the note in `core/variation_guard.py`.
+
 ---
 
 ## 2. Inauthentic content — the pipeline's design constraint

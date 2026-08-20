@@ -30,6 +30,13 @@ type Props = {
   scene: Scene;
   localFrame: number;
   durationInFrames: number;
+  /**
+   * Dikey kadraj (Shorts, 1080×1920). Katmanlar yüzdeyle konumlandığı için
+   * kendiliğinden uyum sağlıyor; ayarlanması gereken tek şey karakterlerin
+   * yatay yerleşimi — 1920 genişliğe göre seçilmiş yüzdeler 1080'de figürleri
+   * üst üste bindiriyor.
+   */
+  portrait?: boolean;
 };
 
 /** Sahne boyunca tek bir yavaş nefes — 0..1..0. */
@@ -59,11 +66,17 @@ const Sky: React.FC<{ top: string; bottom: string; drift: number }> = ({
  * gökyüzü kanalın en açık hâlidir. Yıldızları her mekânda aynı yoğunlukta
  * çizmek, mekânları birbirine benzeten şeylerden biriydi.
  */
-const Stars: React.FC<{ ink: string; phase: number; visibility: number }> = ({
-  ink,
-  phase,
-  visibility,
-}) => {
+const Stars: React.FC<{
+  ink: string;
+  phase: number;
+  visibility: number;
+  portrait: boolean;
+}> = ({ ink, phase, visibility, portrait }) => {
+  // Kadraj oranı değişince viewBox da değişmeli. Sabit 1920×1080 viewBox'ı
+  // dikey kadrajda `preserveAspectRatio="none"` ile germek yıldızları ve ayı
+  // elipse çeviriyordu.
+  const vw = portrait ? 1080 : 1920;
+  const vh = portrait ? 1920 : 1080;
   // Sabit tohum: yıldızlar sahneden sahneye zıplamaz, gökyüzü kararlı kalır.
   const stars = React.useMemo(() => {
     let seed = 20260813;
@@ -72,16 +85,16 @@ const Stars: React.FC<{ ink: string; phase: number; visibility: number }> = ({
       return seed / 4294967296;
     };
     return Array.from({ length: 60 }, () => ({
-      x: next() * 1920,
-      y: next() * 620,
+      x: next() * vw,
+      y: next() * vh * 0.57,
       r: 1 + next() * 2.2,
       off: next(),
     }));
-  }, []);
+  }, [vw, vh]);
 
   return (
     <AbsoluteFill>
-      <svg width="100%" height="100%" viewBox="0 0 1920 1080" preserveAspectRatio="none">
+      <svg width="100%" height="100%" viewBox={`0 0 ${vw} ${vh}`} preserveAspectRatio="none">
         {stars.map((s, i) => (
           <circle
             key={i}
@@ -101,19 +114,30 @@ const Stars: React.FC<{ ink: string; phase: number; visibility: number }> = ({
 };
 
 /** Ay — bedtime kanalının sabit göksel işareti, sağ üstte. */
-const Moon: React.FC<{ accent: string; glow: number }> = ({ accent, glow }) => (
-  <AbsoluteFill>
-    <svg width="100%" height="100%" viewBox="0 0 1920 1080" preserveAspectRatio="none">
-      <circle cx={1560} cy={210} r={110} fill={accent} opacity={0.1 + glow * 0.06} />
-      <circle cx={1560} cy={210} r={74} fill={accent} opacity={0.16 + glow * 0.08} />
-      <circle cx={1560} cy={210} r={52} fill={accent} opacity={0.92} />
-      {/* Kraterler — çok düşük kontrast, dikkat çekmemeli */}
-      <circle cx={1544} cy={196} r={11} fill="#00000012" />
-      <circle cx={1576} cy={224} r={8} fill="#00000010" />
-      <circle cx={1568} cy={188} r={6} fill="#0000000e" />
-    </svg>
-  </AbsoluteFill>
-);
+const Moon: React.FC<{ accent: string; glow: number; portrait: boolean }> = ({
+  accent,
+  glow,
+  portrait,
+}) => {
+  const vw = portrait ? 1080 : 1920;
+  const vh = portrait ? 1920 : 1080;
+  // Konum orantısal: her iki kadrajda da sağ üstte, aynı yerde.
+  const cx = vw * 0.81;
+  const cy = vh * 0.195;
+  return (
+    <AbsoluteFill>
+      <svg width="100%" height="100%" viewBox={`0 0 ${vw} ${vh}`} preserveAspectRatio="none">
+        <circle cx={cx} cy={cy} r={110} fill={accent} opacity={0.1 + glow * 0.06} />
+        <circle cx={cx} cy={cy} r={74} fill={accent} opacity={0.16 + glow * 0.08} />
+        <circle cx={cx} cy={cy} r={52} fill={accent} opacity={0.92} />
+        {/* Kraterler — çok düşük kontrast, dikkat çekmemeli */}
+        <circle cx={cx - 16} cy={cy - 14} r={11} fill="#00000012" />
+        <circle cx={cx + 16} cy={cy + 14} r={8} fill="#00000010" />
+        <circle cx={cx + 8} cy={cy - 22} r={6} fill="#0000000e" />
+      </svg>
+    </AbsoluteFill>
+  );
+};
 
 const Glow: React.FC<{ color: string; intensity: number }> = ({ color, intensity }) => {
   const alpha = Math.round(20 + intensity * 24)
@@ -184,7 +208,12 @@ function standOn(left: string): React.CSSProperties {
   };
 }
 
-export const SceneView: React.FC<Props> = ({ scene, localFrame, durationInFrames }) => {
+export const SceneView: React.FC<Props> = ({
+  scene,
+  localFrame,
+  durationInFrames,
+  portrait = false,
+}) => {
   const palette = paletteFor(scene.mood);
   const b = breathe(localFrame, durationInFrames);
   const heroPose = poseFrom(scene.assets.character);
@@ -198,7 +227,12 @@ export const SceneView: React.FC<Props> = ({ scene, localFrame, durationInFrames
   });
 
   // Misafir varsa Fen sola kayar; yalnızsa ortada durur.
-  const heroLeft = hasCompanion ? "38%" : "50%";
+  const heroLeft = hasCompanion ? (portrait ? "31%" : "38%") : "50%";
+  const guestLeft = portrait ? "75%" : "68%";
+  // Dikey kadrajda figürler telefonda küçük kalmasın diye biraz büyütülür,
+  // ama kutular dar genişlikte çakışmayacak kadar da küçültülür.
+  const heroBox = portrait ? 360 : 420;
+  const guestBox = portrait ? 260 : 320;
 
   return (
     <AbsoluteFill style={{ transform: `scale(${zoom})`, transformOrigin: "50% 58%" }}>
@@ -207,8 +241,9 @@ export const SceneView: React.FC<Props> = ({ scene, localFrame, durationInFrames
         ink={palette.ink}
         phase={localFrame / Math.max(1, durationInFrames)}
         visibility={spec.starVisibility}
+        portrait={portrait}
       />
-      <Moon accent={palette.accent} glow={b} />
+      <Moon accent={palette.accent} glow={b} portrait={portrait} />
       <BackdropFar {...layer} />
       <Glow color={palette.accent} intensity={b} />
       <Ground color={palette.ground} rise={b * 0.5} />
@@ -220,17 +255,17 @@ export const SceneView: React.FC<Props> = ({ scene, localFrame, durationInFrames
 
       {/* Karakterler tabana OTURUR — kutunun alt kenarı BASELINE'a hizalanır,
           böylece bir katman değişince figürler havada kalmaz. */}
-      <div style={{ ...standOn(heroLeft), width: 420, height: 420 }}>
-        <Fen pose={heroPose} breath={b} accent={palette.accent} size={400} />
+      <div style={{ ...standOn(heroLeft), width: heroBox, height: heroBox }}>
+        <Fen pose={heroPose} breath={b} accent={palette.accent} size={heroBox - 20} />
       </div>
 
       {scene.assets.companion ? (
-        <div style={{ ...standOn("68%"), width: 320, height: 320 }}>
+        <div style={{ ...standOn(guestLeft), width: guestBox, height: guestBox }}>
           <Companion
             assetId={scene.assets.companion}
             breath={1 - b}
             accent={palette.accent}
-            size={300}
+            size={guestBox - 20}
           />
         </div>
       ) : null}

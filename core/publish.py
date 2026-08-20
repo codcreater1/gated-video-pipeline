@@ -440,6 +440,7 @@ def publish(
         title=job["title"] or "",
         asset_ids=storyboard.variation_asset_ids(board),
         voice_id=job["voice_id"] or profile.voice_id,
+        fmt=job["format"],
     )
 
     _archive_card(job_id, result)

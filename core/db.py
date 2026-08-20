@@ -83,6 +83,9 @@ CREATE TABLE IF NOT EXISTS fingerprints (
     id                INTEGER PRIMARY KEY AUTOINCREMENT,
     job_id            INTEGER NOT NULL,
     channel           TEXT    NOT NULL,
+    -- Varyasyon karsilastirmasi format seridinde yapilir: bir Short'u kendi
+    -- kaynak bolumuyle kiyaslamak tanim geregi hep "cok benzer" cikardi.
+    format            TEXT,
     script_vector     BLOB,
     structure_hash    TEXT,
     title_pattern     TEXT,
@@ -142,10 +145,20 @@ def connect() -> Iterator[sqlite3.Connection]:
         conn.close()
 
 
+def _migrate(conn: sqlite3.Connection) -> None:
+    """Eksik sütunları ekler. CREATE TABLE IF NOT EXISTS mevcut tabloyu
+    değiştirmez, o yüzden şemaya eklenen her sütunun burada karşılığı olmalı —
+    aksi halde kod yeni sütunu bekler ve eski veritabanı onu hiç kazanmaz."""
+    cols = {r["name"] for r in conn.execute("PRAGMA table_info(fingerprints)")}
+    if "format" not in cols:
+        conn.execute("ALTER TABLE fingerprints ADD COLUMN format TEXT")
+
+
 def init() -> None:
-    """Şemayı oluşturur. Idempotent."""
+    """Şemayı oluşturur ve göçleri uygular. Idempotent."""
     with connect() as conn:
         conn.executescript(SCHEMA)
+        _migrate(conn)
 
 
 # --------------------------------------------------------------------------
@@ -199,15 +212,26 @@ def jobs_by_status(status: JobStatus, limit: int = 100) -> list[dict[str, Any]]:
         return [dict(r) for r in rows]
 
 
-def recent_jobs(channel: str, limit: int = config.VARIATION_LOOKBACK) -> list[dict[str, Any]]:
-    """Varyasyon kapısının karşılaştırma penceresi."""
+def recent_jobs(
+    channel: str,
+    limit: int = config.VARIATION_LOOKBACK,
+    fmt: str | None = None,
+) -> list[dict[str, Any]]:
+    """Varyasyon kapısının karşılaştırma penceresi.
+
+    `fmt` verilirse yalnızca aynı formattaki işler döner. Bir Short'u 10
+    dakikalık kaynak bölümüyle karşılaştırmak anlamsız: metni ondan türüyor,
+    benzerlik tanım gereği tavan yapar.
+    """
+    sql = "SELECT * FROM jobs WHERE channel = ? AND status IN (?, ?)"
+    params: list[Any] = [channel, JobStatus.PUBLISHED.value, JobStatus.APPROVED.value]
+    if fmt:
+        sql += " AND format = ?"
+        params.append(fmt)
+    sql += " ORDER BY created_at DESC LIMIT ?"
+    params.append(limit)
     with connect() as conn:
-        rows = conn.execute(
-            "SELECT * FROM jobs WHERE channel = ? AND status IN (?, ?) "
-            "ORDER BY created_at DESC LIMIT ?",
-            (channel, JobStatus.PUBLISHED.value, JobStatus.APPROVED.value, limit),
-        ).fetchall()
-        return [dict(r) for r in rows]
+        return [dict(r) for r in conn.execute(sql, params).fetchall()]
 
 
 def published_today(channel: str | None = None) -> int:
@@ -263,27 +287,55 @@ def record_fingerprint(
     title_pattern: str,
     asset_ids: list[str],
     voice_id: str,
+    fmt: str | None = None,
 ) -> None:
     with connect() as conn:
         conn.execute(
             "INSERT INTO fingerprints "
-            "(job_id, channel, script_vector, structure_hash, title_pattern, "
+            "(job_id, channel, format, script_vector, structure_hash, title_pattern, "
             " asset_ids_json, voice_id, created_at) "
-            "VALUES (?, ?, ?, ?, ?, ?, ?, ?)",
+            "VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)",
             (
-                job_id, channel, script_vector, structure_hash, title_pattern,
+                job_id, channel, fmt, script_vector, structure_hash, title_pattern,
                 json.dumps(asset_ids), voice_id, _now(),
             ),
         )
 
 
 def recent_fingerprints(
-    channel: str, limit: int = config.VARIATION_LOOKBACK
+    channel: str,
+    limit: int = config.VARIATION_LOOKBACK,
+    fmt: str | None = None,
 ) -> list[dict[str, Any]]:
+    """`fmt` verilirse yalnızca aynı formatın parmak izleri.
+
+    Format sütunu sonradan eklendi; eski satırlarda NULL. Format filtresi
+    varken bunlar dışarıda kalır — eski bir bölümü Short geçmişi sanmaktansa
+    saymamak doğru.
+    """
+    sql = "SELECT * FROM fingerprints WHERE channel = ?"
+    params: list[Any] = [channel]
+    if fmt:
+        sql += " AND format = ?"
+        params.append(fmt)
+    sql += " ORDER BY created_at DESC LIMIT ?"
+    params.append(limit)
+    with connect() as conn:
+        return [dict(r) for r in conn.execute(sql, params).fetchall()]
+
+
+def published_by_format(channel: str, fmt: str, limit: int = 200) -> list[dict[str, Any]]:
+    """Yayınlanmış işler, en eskiden yeniye.
+
+    Derleme bunları sırayla birleştirir: izleyici bölümleri yayın sırasına
+    göre görmeli, rastgele değil.
+    """
     with connect() as conn:
         rows = conn.execute(
-            "SELECT * FROM fingerprints WHERE channel = ? ORDER BY created_at DESC LIMIT ?",
-            (channel, limit),
+            "SELECT * FROM jobs WHERE channel = ? AND format = ? AND status = ? "
+            "AND output_path IS NOT NULL AND output_path != '' "
+            "ORDER BY published_at ASC LIMIT ?",
+            (channel, fmt, JobStatus.PUBLISHED.value, limit),
         ).fetchall()
         return [dict(r) for r in rows]
 

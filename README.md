@@ -63,8 +63,11 @@ flowchart TD
     L --> M[publish.py → YouTube<br/>resumable upload]
     M --> N[analytics.py<br/>retention, 7+ days later]
     N -.->|bounded axis weights| A
+    M -.->|derived, /usr/bin/bash| P[shorts.py 1080×1920<br/>compilation.py ffmpeg concat]
+    P -.->|same approval gate| I
 
     style N fill:#3d5a3d,color:#fff
+    style P fill:#3d5a3d,color:#fff
     style B fill:#8b2f2f,color:#fff
     style D fill:#8b2f2f,color:#fff
     style G fill:#8b2f2f,color:#fff
@@ -160,6 +163,8 @@ otomasyon doctor && otomasyon init
 | `otomasyon authorize <channel>` | YouTube OAuth, once per channel |
 | `otomasyon uploads` | Approved videos not yet uploaded |
 | `otomasyon publish <id>` | Upload to YouTube — the only irreversible command |
+| `otomasyon short <id>` | Derive a vertical Short from a published episode |
+| `otomasyon compile` | Stitch published episodes into a 40–60 minute compilation |
 | `otomasyon analytics [--refresh]` | Retention per episode and the axis weights it produces |
 | `otomasyon setup-node` | Fetch portable Node 22 for n8n (leaves system PATH alone) |
 
@@ -239,9 +244,37 @@ Identifiers are generated in Python and resolved in TypeScript, in separate file
 
 So [`tests/test_backgrounds.py`](tests/test_backgrounds.py) parses the TypeScript keyword tables and asserts against the Python pools: every setting resolves, every companion resolves, and **no two settings collapse onto the same terrain**. It also pins the ordering that makes `kar_altinda_cam_ormani` match snow rather than plain forest — it contains both keywords, and the wrong order silently drops the snow.
 
+## Three formats, two of them derived
+
+The episode is the only thing the pipeline generates from scratch. The other two formats are built from episodes that have already been published — which means they already cleared every gate.
+
+| Format | How it is made | LLM cost |
+|---|---|---|
+| **Episode** (8–12 min) | Generated: idea → script → storyboard → narration → render | metered, capped at $4 |
+| **Short** (20–59 s) | [`shorts.py`](core/shorts.py) — one scene of a published episode, narration trimmed at a sentence boundary, re-rendered vertically | **$0** |
+| **Compilation** (40–60 min) | [`compilation.py`](core/compilation.py) — published episodes concatenated with `ffmpeg`, stream-copied | **$0** |
+
+<img src="docs/images/settings/short_vertical.png" width="270" align="right" alt="A vertical Short rendered at 1080×1920">
+
+Shorts matter more than their length suggests. [`docs/content-guidelines.md §1`](docs/content-guidelines.md) works through what Made for Kids turns off: Super Thanks, channel memberships, end screens, cards, comments, personalized ads. What survives is **Shorts revenue sharing** — so on an MFK channel, Shorts are the format that actually earns.
+
+Deriving rather than generating is also the cheaper answer to variation. A Short inherits the variety of the episode it came from, and that episode already passed the gate.
+
+Compilations are assembled, never rendered: a 60-minute single-pass render measures ~2.3 hours on this hardware, while `ffmpeg concat` with stream copy finishes in seconds because every episode shares one codec, resolution and frame rate.
+
+<br clear="right">
+
+### The variation gate needed a format lane
+
+A Short takes its text from its parent episode. Compared against that episode, script similarity saturates and **no Short could ever pass the gate** — and it would fail quietly, because the gate would look like it was working.
+
+So comparison is now scoped by format: Shorts compete with Shorts, episodes with episodes. This is a lane, not an exemption — a test asserts that two near-identical Shorts are still rejected, and another asserts that removing the lane brings back the original failure. The real question the gate asks is "is this different from the last 50 of *its own kind*".
+
+Compilations get their own rule instead, because measuring script similarity on an assembly of its own members is meaningless. What matters there is whether two compilations share too many episodes: republishing the same twelve episodes in a different order is repetition in its plainest form, so overlap above 50% is refused.
+
 ## Status
 
-Implemented and tested end to end: ideation with performance feedback, scripting, storyboarding, narration, TTS, the background pack, rendering, all four gates, the review queue, YouTube publishing, post-publish analytics, the database, and the CLI — **154 tests**, run on every push by CI.
+Implemented and tested end to end: ideation with performance feedback, scripting, storyboarding, narration, TTS, the background pack, rendering in both aspect ratios, all four gates, the review queue, YouTube publishing, post-publish analytics, the database, and the CLI — **181 tests**, run on every push by CI.
 
 Neither the upload nor the analytics path touches a Google API in tests: the uploader and the metrics fetcher are both injectable, so the tests assert what *would* be sent and what *would* be done with what comes back.
 
@@ -251,7 +284,7 @@ Next: Channel B is written and configured but stays inactive until Channel A has
 
 ```
 .
-├─ core/               # Python production logic (16 modules)
+├─ core/               # Python production logic (18 modules)
 │  ├─ pipeline.py      #   orchestrator — applies gates in order
 │  ├─ variation_guard.py, budget.py, approval.py   # the gates
 │  ├─ ideation.py, script.py, storyboard.py        # content generation
@@ -259,12 +292,14 @@ Next: Channel B is written and configured but stays inactive until Channel A has
 │  ├─ render.py        #   Remotion driver
 │  ├─ publish.py       #   YouTube upload — the irreversible step
 │  ├─ analytics.py     #   retention → bounded ideation weights
+│  ├─ shorts.py        #   vertical Shorts derived from published episodes
+│  ├─ compilation.py   #   40–60 min assemblies, concatenated not rendered
 │  └─ config.py, db.py, doctor.py, cli.py
 ├─ remotion/           # video templates (React + TypeScript)
 │  └─ src/
 │     ├─ characters/   #   Fen and companions, drawn in SVG
 │     └─ backgrounds/  #   12 terrains resolved from the asset id
-├─ tests/              # 154 tests, no external-drive dependency
+├─ tests/              # 181 tests, no external-drive dependency
 ├─ scripts/n8n.ps1     # n8n launcher
 └─ docs/
 ```

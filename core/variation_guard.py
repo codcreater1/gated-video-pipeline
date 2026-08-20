@@ -239,10 +239,20 @@ def evaluate(
     title: str,
     asset_ids: list[str],
     voice_id: str,
+    fmt: str | None = None,
 ) -> VariationVerdict:
-    """Beş ekseni de denetler. Hepsi geçmeden video ilerleyemez."""
-    history = db.recent_jobs(channel, limit=config.VARIATION_LOOKBACK)
-    fingerprints = db.recent_fingerprints(channel, limit=config.VARIATION_LOOKBACK)
+    """Beş ekseni de denetler. Hepsi geçmeden video ilerleyemez.
+
+    Karşılaştırma FORMAT ŞERİDİNDE yapılır. Bir Short metnini kaynak
+    bölümünden türetir; onu o bölümle kıyaslamak tanım gereği "çok benzer"
+    verir ve hiçbir Short kapıdan geçemezdi. Aynı şey derleme için de geçerli:
+    derleme zaten bölümlerinin birebir kendisidir.
+
+    Şerit, kapıyı gevşetmiyor — Short'lar Short'larla, bölümler bölümlerle
+    yarışıyor. Asıl soru "bu video son 50 BENZERİNDEN farklı mı".
+    """
+    history = db.recent_jobs(channel, limit=config.VARIATION_LOOKBACK, fmt=fmt)
+    fingerprints = db.recent_fingerprints(channel, limit=config.VARIATION_LOOKBACK, fmt=fmt)
 
     struct = structure_hash(storyboard)
     pattern = title_pattern(title)
@@ -266,13 +276,14 @@ def enforce(
     title: str,
     asset_ids: list[str],
     voice_id: str,
+    fmt: str | None = None,
 ) -> VariationVerdict:
     """evaluate + reddedilirse işi yeniden üretim kuyruğuna düşürür.
 
     Geçerse parmak izi HENÜZ kaydedilmez — kayıt yayın anında `commit_fingerprint()`
     ile yapılır. Böylece yayınlanmamış denemeler geçmişi kirletmez.
     """
-    verdict = evaluate(channel, script, storyboard, title, asset_ids, voice_id)
+    verdict = evaluate(channel, script, storyboard, title, asset_ids, voice_id, fmt=fmt)
     if not verdict.passed:
         db.reject_job(job_id, f"VARYASYON: {verdict.reason}")
     return verdict
@@ -285,11 +296,13 @@ def commit_fingerprint(
     title: str,
     asset_ids: list[str],
     voice_id: str,
+    fmt: str | None = None,
 ) -> None:
     """Yayınlanan videonun parmak izini geçmişe yazar."""
     db.record_fingerprint(
         job_id=job_id,
         channel=channel,
+        fmt=fmt,
         script_vector=None,  # TF-IDF korpus bağımlı; benzerlik jobs.script'ten hesaplanır
         structure_hash=structure_hash(storyboard),
         title_pattern=title_pattern(title),
